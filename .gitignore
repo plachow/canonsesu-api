@@ -1,0 +1,38 @@
+# User-specific files
+claude.md
+appsettings.json
+appsettings.Development.json
+appconfig.json
+appconfig.Development.json
+
+# .NET build outputs
+bin/
+obj/
+out/
+publish/
+
+# NuGet
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider
+.idea/
+
+# VS Code
+.vscode/
+
+# Docker
+.dockerignore
+
+# OS
+.DS_Store
+Thumbs.db
