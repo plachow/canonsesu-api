@@ -1,8 +1,11 @@
 using System.Threading.RateLimiting;
 using CanonSeSu.Api.Data;
 using CanonSeSu.Api.Endpoints;
+using CanonSeSu.Api.Jobs;
 using CanonSeSu.Api.Middleware;
+using CanonSeSu.Api.Services;
 using Microsoft.AspNetCore.RateLimiting;
+using Quartz;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +27,22 @@ builder.Services.AddRateLimiter(options =>
 builder.Services.AddScoped<AppDb>(_ =>
     new AppDb(builder.Configuration.GetConnectionString("DefaultConnection")!));
 
+builder.Services.AddScoped<EmailService>();
+
+builder.Services.AddQuartz(q =>
+{
+    q.AddJob<CounterRequestEmailJob>(CounterRequestEmailJob.Key, c => c.StoreDurably());
+    q.AddTrigger(t => t
+        .ForJob(CounterRequestEmailJob.Key)
+        .WithIdentity("CounterRequestEmailTrigger")
+        .WithCronSchedule(
+            "0 0 2 28 * ?",
+            x => x.InTimeZone(TimeZoneInfo.FindSystemTimeZoneById("Central European Standard Time"))));
+});
+builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
+
+builder.Services.AddHealthChecks();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -32,9 +51,13 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 app.UseRateLimiter();
 app.UseMiddleware<ApiKeyMiddleware>();
 
+app.MapHealthChecks("/health");
 app.MapDevicesEndpoints();
+app.MapAdminEndpoints();
+app.MapUserEndpoints();
 
 app.Run();

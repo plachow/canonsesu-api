@@ -1,0 +1,61 @@
+Vážený zákazníku,
+prosíme o nahlášení stavu počítadel k poslednímu dni tohoto kalendářního měsíce, a to pro stroje dle specifikace níže.
+
+Děkujeme za spolupráci,
+Canon CZ s.r.o.
+
+ 
+
+Pokud je potřeba nahlásit počítadla Total BW a Total Colour a Váš stroje je neobsahuje, prosíme použijte pro výpočet počítadla 112 (Black/Large), 113 (Black/Small), 122 (Color/Large), 123 (Color/Small), která jsou na stroji nastavena.
+Total BW = 2 * 112 + 113
+Total Colour = 2 * 122 + 123
+
+ 
+
+Typ stroje
+
+ Sériové číslo
+
+ Název počítadla
+
+ Stav počítadla
+
+IMAGEPRESS V700 SERIES+licence (V700)
+
+ 4VB05026
+
+ 122 (Color/Large) (E)
+
+ Nahlásit stav »
+
+IMAGEPRESS V700 SERIES+licence (V700)
+
+ 4VB05026
+
+ 113 (Black/Small) (D)
+
+ Nahlásit stav »
+
+IMAGEPRESS V700 SERIES+licence (V700)
+
+ 4VB05026
+
+ 123 (Color/Small) (F)
+
+ Nahlásit stav »
+
+IMAGEPRESS V700 SERIES+licence (V700)
+
+ 4VB05026
+
+ 112 (Black/Large) (C)
+
+ Nahlásit stav »
+
+TX-3200(EUR) (TX3200)
+
+ BBGF00734
+
+ INK USAGE ml (C)
+
+ Nahlásit stav »

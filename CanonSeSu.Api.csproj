@@ -7,9 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AWSSDK.SimpleEmailV2" Version="4.0.12.3" />
     <PackageReference Include="linq2db" Version="6.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.4" />
     <PackageReference Include="Npgsql" Version="10.0.2" />
+    <PackageReference Include="Quartz" Version="3.16.1" />
+    <PackageReference Include="Quartz.Extensions.Hosting" Version="3.16.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Legacy\" />
   </ItemGroup>
 
 </Project>
