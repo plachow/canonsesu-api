@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Hlášení stavu počítadel — Canon CZ</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="logo-mark">
+      <img src="/canon-logo.png" alt="Canon" />
+    </div>
+    <div class="header-text">
+      <div class="header-title">Hlášení stavu počítadel</div>
+      <div class="header-sub">Servisní portál — hlášení měsíčních počítadel</div>
+    </div>
+  </div>
+</header>
+
+<main class="main" id="app">
+  <!-- Stavové obsahy jsou vkládány přes JS -->
+</main>
+
+<div class="submit-bar" id="submitBar" style="display:none;">
+  <div class="submit-bar-inner">
+    <div class="progress-wrap">
+      <div class="progress-text">
+        Vyplněno: <strong><span id="progressFilled">0</span> / <span id="progressTotal">0</span></strong> počítadel
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill" style="width:0%"></div>
+      </div>
+    </div>
+    <button class="btn-submit" id="btnSubmit" disabled onclick="handleSubmit()">
+      Odeslat hlášení
+    </button>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+</body>
+</html>

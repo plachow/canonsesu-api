@@ -4,9 +4,117 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex, nofollow" />
-  <title>Hlášení stavu počítadel — Canon CZ</title>
+  <title>Servisní portál — Canon CZ</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="stylesheet" href="/css/style.css" />
+  <style>
+    .info-card {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 28px 32px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .info-card h2 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--red);
+      display: inline-block;
+    }
+
+    .info-card p {
+      font-size: 14px;
+      color: var(--ink-mid);
+      line-height: 1.7;
+      margin-bottom: 10px;
+    }
+
+    .info-card p:last-child { margin-bottom: 0; }
+
+    .info-card ul {
+      margin: 8px 0 10px 20px;
+      font-size: 14px;
+      color: var(--ink-mid);
+      line-height: 1.8;
+    }
+
+    .links-card {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      margin-bottom: 16px;
+    }
+
+    .links-card h2 {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      color: var(--ink-muted);
+      padding: 14px 24px 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .service-link {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--line);
+      text-decoration: none;
+      transition: background var(--transition);
+    }
+
+    .service-link:last-child { border-bottom: none; }
+    .service-link:hover { background: var(--surface); }
+
+    .service-link-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--red-tint);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .service-link-icon svg {
+      width: 20px;
+      height: 20px;
+      stroke: var(--red);
+      fill: none;
+    }
+
+    .service-link-body { flex: 1; min-width: 0; }
+
+    .service-link-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 2px;
+    }
+
+    .service-link-desc {
+      font-size: 12px;
+      color: var(--ink-muted);
+    }
+
+    .service-link-arrow {
+      width: 16px;
+      height: 16px;
+      stroke: var(--ink-faint);
+      fill: none;
+      flex-shrink: 0;
+    }
+  </style>
 </head>
 <body>
 
@@ -16,32 +124,104 @@
       <img src="/canon-logo.png" alt="Canon" />
     </div>
     <div class="header-text">
-      <div class="header-title">Hlášení stavu počítadel</div>
-      <div class="header-sub">Servisní portál — hlášení měsíčních počítadel</div>
+      <div class="header-title">Servisní portál</div>
+      <div class="header-sub">Canon CZ s.r.o. — hlášení stavu počítadel</div>
     </div>
   </div>
 </header>
 
-<main class="main" id="app">
-  <!-- Stavové obsahy jsou vkládány přes JS -->
+<main class="main">
+
+  <div class="period-bar" id="periodBar" style="visibility:hidden;">
+    <div class="period-item">
+      <span class="period-label">Aktuální období hlášení:</span>
+      <span class="period-value" id="infoPeriod">—</span>
+    </div>
+    <div class="period-item">
+      <span class="period-label">Termín odevzdání:</span>
+      <span class="period-value" id="infoDeadline">—</span>
+    </div>
+  </div>
+
+  <div class="info-card">
+    <h2>Hlášení stavu počítadel</h2>
+    <p>
+      Každý měsíc zasíláme na váš email odkaz k vyplnění aktuálního stavu počítadel vašich tiskáren.
+      Hlášení slouží jako podklad pro fakturaci servisních služeb.
+    </p>
+    <p>Pravidla pro správné vyplnění:</p>
+    <ul>
+      <li>Zadávejte stav počítadel k poslednímu dni příslušného měsíce.</li>
+      <li>Aktuální stav nesmí být nižší než stav z předchozího hlášení.</li>
+      <li>Pokud byl stroj vyměněn nebo opravován, uveďte poznámku k záznamu.</li>
+      <li>Hlášení je nutné odeslat do termínu odevzdání. Po uplynutí termínu kontaktujte servisní oddělení.</li>
+    </ul>
+    <p>
+      Odkaz k vyplnění hlášení obdržíte e-mailem vždy na začátku měsíce.
+      Pokud odkaz nemáte, obraťte se na <a href="mailto:servis@services-support.cz" style="color:var(--red);">servis@services-support.cz</a>.
+    </p>
+  </div>
+
+  <div class="links-card">
+    <h2>Servisní podpora Canon</h2>
+    <a class="service-link" href="https://www.canon.cz/pro/services/" target="_blank" rel="noopener">
+      <div class="service-link-icon">
+        <svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>
+        </svg>
+      </div>
+      <div class="service-link-body">
+        <div class="service-link-title">Servis profesionálních produktů</div>
+        <div class="service-link-desc">Podpora pro kancelářské a produkční tiskárny Canon</div>
+      </div>
+      <svg class="service-link-arrow" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+    </a>
+    <a class="service-link" href="https://www.canon.cz/support/consumer/contact-support/" target="_blank" rel="noopener">
+      <div class="service-link-icon">
+        <svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+      </div>
+      <div class="service-link-body">
+        <div class="service-link-title">Servis produktů pro domácnost</div>
+        <div class="service-link-desc">Podpora pro domácí tiskárny, fotoaparáty a spotřební elektroniku Canon</div>
+      </div>
+      <svg class="service-link-arrow" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+    </a>
+  </div>
+
 </main>
 
-<div class="submit-bar" id="submitBar" style="display:none;">
-  <div class="submit-bar-inner">
-    <div class="progress-wrap">
-      <div class="progress-text">
-        Vyplněno: <strong><span id="progressFilled">0</span> / <span id="progressTotal">0</span></strong> počítadel
-      </div>
-      <div class="progress-track">
-        <div class="progress-fill" id="progressFill" style="width:0%"></div>
-      </div>
-    </div>
-    <button class="btn-submit" id="btnSubmit" disabled onclick="handleSubmit()">
-      Odeslat hlášení
-    </button>
-  </div>
-</div>
+<script>
+  const _idcode = new URLSearchParams(location.search).get('idcode');
+  if (_idcode) { location.replace('/pocitadla.html?idcode=' + encodeURIComponent(_idcode)); }
 
-<script src="/js/app.js"></script>
+  (async () => {
+    try {
+      const resp = await fetch('/api/info');
+      if (!resp.ok) return;
+      const info = await resp.json();
+
+      const fmtPeriod = iso => iso
+        ? new Date(iso).toLocaleDateString('cs-CZ', { month: 'long', year: 'numeric' })
+        : '—';
+      const fmtDate = iso => iso
+        ? new Date(iso).toLocaleDateString('cs-CZ', { day: 'numeric', month: 'numeric', year: 'numeric' })
+        : '—';
+
+      document.getElementById('infoPeriod').textContent = fmtPeriod(info.period);
+      const dlEl = document.getElementById('infoDeadline');
+      dlEl.textContent = fmtDate(info.deadline);
+      if (info.isPastDeadline) dlEl.classList.add('deadline-past');
+
+      document.getElementById('periodBar').style.visibility = 'visible';
+    } catch (_) { /* API nedostupné — period bar zůstane skrytý */ }
+  })();
+</script>
+
 </body>
 </html>

@@ -9,6 +9,22 @@ public static class UserEndpoints
 {
     public static void MapUserEndpoints(this WebApplication app)
     {
+        // GET /api/info — returns current reporting period and deadline (public, no auth)
+        app.MapGet("/api/info", async (AppDb db) =>
+        {
+            var row = await db.ServiceDeviceCounters
+                .OrderByDescending(x => x.DatumAktualnihoHlaseni)
+                .Select(x => new { x.DatumAktualnihoHlaseni, x.DeadlineDate })
+                .FirstOrDefaultAsync();
+
+            if (row is null)
+                return Results.Ok(new { period = (DateOnly?)null, deadline = (DateOnly?)null, isPastDeadline = false });
+
+            var isPastDeadline = row.DeadlineDate.HasValue && DateTime.UtcNow.Date > row.DeadlineDate.Value.Date;
+            return Results.Ok(new { period = row.DatumAktualnihoHlaseni, deadline = row.DeadlineDate, isPastDeadline });
+        })
+        .WithName("GetInfo");
+
         // GET /api/user/{idcode} — returns all devices for this user in the current period
         app.MapGet("/api/user/{idcode}", async (AppDb db, string idcode) =>
         {

@@ -3,8 +3,45 @@ services:
     image: ghcr.io/plachow/canonsesu-api:latest
     container_name: sesu-api
     restart: unless-stopped
-    ports:
-      - "5080:8080"
-    env_file: .env
+    pull_policy: always
+    environment:
+      - TZ=Europe/Prague
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=${ConnectionStrings__DefaultConnection}
+      - ApiKey=${ApiKey}
+      - Aws__Region=${Aws__Region}
+      - Aws__AccessKeyId=${Aws__AccessKeyId}
+      - Aws__SecretAccessKey=${Aws__SecretAccessKey}
+      - Email__FromAddress=${Email__FromAddress}
+      - Email__FromName=${Email__FromName}
+      - Email__ReplyToAddress=${Email__ReplyToAddress}
+      - Email__UserPortalBaseUrl=${Email__UserPortalBaseUrl}
+      - Email__DryRun=${Email__DryRun}
+      - Email__OverrideRecipient=${Email__OverrideRecipient}
     labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.sesu-api.rule=Host(`pocitadla.services-support.cz`)"
+      - "traefik.http.routers.sesu-api.entrypoints=web"
+      - "traefik.http.services.sesu-api.loadbalancer.server.port=8080"
       - "com.centurylinklabs.watchtower.enable=true"
+    networks:
+      - proxy
+
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower-sesu
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /root/.docker/config.json:/config.json
+    environment:
+      - TZ=Europe/Prague
+      - WATCHTOWER_LABEL_ENABLE=true
+      - WATCHTOWER_POLL_INTERVAL=300
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    external: true
