@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deployment Checklist — .NET API + Docker + AWS SES</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #F7F8FA;
+      --white:    #FFFFFF;
+      --ink:      #1A1A2E;
+      --muted:    #5A6070;
+      --line:     #E2E5EB;
+      --accent:   #2563EB;
+      --accent-bg:#EFF6FF;
+      --green:    #16A34A;
+      --green-bg: #F0FDF4;
+      --green-bd: #BBF7D0;
+      --orange:   #C2410C;
+      --orange-bg:#FFF7ED;
+      --orange-bd:#FED7AA;
+      --red:      #DC2626;
+      --red-bg:   #FEF2F2;
+      --red-bd:   #FECACA;
+      --code-bg:  #1E2030;
+      --code-fg:  #C9D1D9;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      font-size: 15px;
+      line-height: 1.65;
+      padding: 40px 20px 80px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page {
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    /* ── Doc header ── */
+    .doc-header {
+      margin-bottom: 40px;
+      padding-bottom: 24px;
+      border-bottom: 2px solid var(--line);
+    }
+
+    .doc-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -.3px;
+      margin-bottom: 6px;
+    }
+
+    .doc-sub {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .doc-meta {
+      display: flex;
+      gap: 20px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px;
+      border: 1px solid;
+    }
+
+    .badge-blue   { background: var(--accent-bg); color: var(--accent); border-color: #BFDBFE; }
+    .badge-green  { background: var(--green-bg);  color: var(--green);  border-color: var(--green-bd); }
+    .badge-orange { background: var(--orange-bg); color: var(--orange); border-color: var(--orange-bd); }
+
+    /* ── TOC ── */
+    .toc {
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 20px 24px;
+      margin-bottom: 40px;
+    }
+
+    .toc-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .toc ol {
+      padding-left: 20px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px 32px;
+    }
+
+    .toc a {
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .toc a:hover { text-decoration: underline; }
+
+    /* ── Sections ── */
+    .section {
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+
+    .section-header {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--bg);
+    }
+
+    .section-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: white;
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--ink);
+      flex: 1;
+    }
+
+    .section-body {
+      padding: 20px 24px;
+    }
+
+    /* ── Checklist ── */
+    .checklist {
+      list-style: none;
+    }
+
+    .checklist li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .checklist li:last-child { border-bottom: none; }
+
+    .checklist input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      margin-top: 2px;
+      accent-color: var(--accent);
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+
+    .checklist label {
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1.5;
+      flex: 1;
+    }
+
+    .checklist input:checked + label {
+      text-decoration: line-through;
+      color: var(--muted);
+    }
+
+    .check-note {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 3px;
+      font-style: italic;
+    }
+
+    /* ── Code blocks ── */
+    .code-block {
+      background: var(--code-bg);
+      border-radius: 6px;
+      padding: 14px 18px;
+      margin: 12px 0;
+      overflow-x: auto;
+    }
+
+    .code-block pre {
+      font-family: 'Cascadia Code', 'Fira Code', 'Courier New', monospace;
+      font-size: 13px;
+      color: var(--code-fg);
+      line-height: 1.7;
+      white-space: pre;
+    }
+
+    .code-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    /* ── Callouts ── */
+    .callout {
+      border-radius: 6px;
+      padding: 12px 16px;
+      margin: 12px 0;
+      font-size: 13.5px;
+      line-height: 1.6;
+      border-left: 3px solid;
+      display: flex;
+      gap: 10px;
+    }
+
+    .callout-icon { flex-shrink: 0; font-size: 16px; }
+
+    .callout-warn  { background: var(--orange-bg); border-color: var(--orange); color: var(--orange); }
+    .callout-info  { background: var(--accent-bg); border-color: var(--accent); color: #1D4ED8; }
+    .callout-ok    { background: var(--green-bg);  border-color: var(--green);  color: var(--green); }
+    .callout-danger{ background: var(--red-bg);    border-color: var(--red);    color: var(--red); }
+
+    /* ── Dividers within sections ── */
+    .subsection-title {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      color: var(--muted);
+      margin: 20px 0 10px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .subsection-title:first-child { margin-top: 0; }
+
+    /* ── Inline code ── */
+    code {
+      background: #F1F3F5;
+      border: 1px solid var(--line);
+      border-radius: 3px;
+      padding: 1px 5px;
+      font-family: 'Courier New', monospace;
+      font-size: 12.5px;
+      color: var(--orange);
+    }
+
+    /* ── Progress bar ── */
+    .progress-wrap {
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 32px;
+      position: sticky;
+      top: 16px;
+      z-index: 10;
+    }
+
+    .progress-label {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .progress-label strong { color: var(--ink); }
+
+    .progress-track {
+      height: 6px;
+      background: var(--line);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--green));
+      border-radius: 3px;
+      transition: width .3s ease;
+    }
+
+    @media (max-width: 600px) {
+      .toc ol { grid-template-columns: 1fr; }
+      .section-body { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="doc-header">
+    <div class="doc-title">Deployment Checklist</div>
+    <div class="doc-sub">.NET Minimal API · Docker · GitHub Actions CalVer · AWS SES · Watchtower</div>
+    <div class="doc-meta">
+      <span class="badge badge-blue">.NET 10</span>
+      <span class="badge badge-blue">PostgreSQL</span>
+      <span class="badge badge-green">Docker + GHCR</span>
+      <span class="badge badge-orange">AWS SES</span>
+    </div>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span>Celkový postup</span>
+      <strong><span id="doneCount">0</span> / <span id="totalCount">0</span> kroků</strong>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">Obsah</div>
+    <ol>
+      <li><a href="#s1">GitHub repozitář</a></li>
+      <li><a href="#s2">GitHub Actions — CI/CD</a></li>
+      <li><a href="#s3">AWS SES — nastavení</a></li>
+      <li><a href="#s4">Server — příprava</a></li>
+      <li><a href="#s5">Server — GHCR přihlášení</a></li>
+      <li><a href="#s6">Server — docker-compose + .env</a></li>
+      <li><a href="#s7">Watchtower</a></li>
+      <li><a href="#s8">První deploy</a></li>
+      <li><a href="#s9">Ověření</a></li>
+    </ol>
+  </div>
+
+  <!-- 1. GitHub -->
+  <div class="section" id="s1">
+    <div class="section-header">
+      <div class="section-num">1</div>
+      <div class="section-title">GitHub repozitář</div>
+    </div>
+    <div class="section-body">
+      <ul class="checklist">
+        <li>
+          <input type="checkbox" id="c1"><label for="c1">Repozitář vytvořen na GitHubu
+            <span class="check-note">Doporučeno: privátní (obsahuje appsettings s credentials)</span>
+          </label>
+        </li>
+        <li>
+          <input type="checkbox" id="c2"><label for="c2">Nastaven vzdálený remote: <code>git remote add origin https://github.com/USER/REPO.git</code></label>
+        </li>
+        <li>
+          <input type="checkbox" id="c3"><label for="c3">Settings → Actions → General → Workflow permissions → <strong>Read and write permissions</strong>
+            <span class="check-note">Nutné pro vytváření GitHub Release a push do GHCR</span>
+          </label>
+        </li>
+        <li>
+          <input type="checkbox" id="c4"><label for="c4">Settings → Packages → Container package nastaven jako privátní nebo veřejný dle potřeby</label>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 2. GitHub Actions -->
+  <div class="section" id="s2">
+    <div class="section-header">
+      <div class="section-num">2</div>
+      <div class="section-title">GitHub Actions — CI/CD pipeline</div>
+    </div>
+    <div class="section-body">
+      <ul class="checklist">
+        <li>
+          <input type="checkbox" id="c5"><label for="c5">Soubor <code>.github/workflows/release.yml</code> je v repozitáři
+            <span class="check-note">Trigger: push na main → CalVer build → Docker push → GitHub Release</span>
+          </label>
+        </li>
+        <li>
+          <input type="checkbox" id="c6"><label for="c6"><code>Dockerfile</code> je v root složce projektu</label>
+        </li>
+        <li>
+          <input type="checkbox" id="c7"><label for="c7"><code>.dockerignore</code> je v root složce projektu
+            <span class="check-note">Vylučuje bin/, obj/, .git/ — zrychluje Docker build</span>
+          </label>
+        </li>
+      </ul>
+
+      <div class="subsection-title">CalVer formát</div>
+      <div class="callout callout-info">
+        <span class="callout-icon">ℹ</span>
+        <span>Verze má formát <strong>YYYY.M.{run_number}</strong> — např. <code>2026.3.47</code>. Rok a měsíc z data buildu, číslo za poslední tečkou je GitHub Actions <code>run_number</code> (globálně rostoucí).</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. AWS SES -->
+  <div class="section" id="s3">
+    <div class="section-header">
+      <div class="section-num">3</div>
+      <div class="section-title">AWS SES — nastavení</div>
+    </div>
+    <div class="section-body">
+
+      <div class="subsection-title">Ověření odesílací identity</div>
+      <ul class="checklist">
+        <li>
+          <input type="checkbox" id="c8"><label for="c8">AWS Console → SES → Verified identities → Create identity
+            <span class="check-note">Doporučeno: celá doména (ne jen email) — umožní odesílat z libovolné adresy na doméně</span>
+          </label>
+        </li>
+        <li>
+          <input type="checkbox" id="c9"><label for="c9">Přidány DNS záznamy pro ověření domény
+            <span class="check-note">TXT záznam pro ověření + 3× CNAME pro DKIM podpis. AWS ukáže přesné hodnoty.</span>
+          </label>
+        </li>
+        <li>
+          <input type="checkbox" id="c10"><label for="c10">Identita má status <strong>Verified</strong> (může trvat až hodinu po přidání DNS)</label>
+        </li>
+      </ul>
+
+      <div class="subsection-title">IAM uživatel pro API</div>
+      <ul class="checklist">
+        <li>
+          <input type="checkbox" id="c11"><label for="c11">IAM → Users → Create user (např. <code>sesu-api-ses</code>)
+            <span class="check-note">Přidat inline policy — viz níže</span>
+          </label>
+        </li>
+      </ul>
+
+      <div class="code-label">IAM inline policy</div>
+      <div class="code-block"><pre>{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Effect": "Allow",
+    "Action": "ses:SendEmail",
+    "Resource": "*"
+  }]
+}</pre></div>
+
+      <ul class="checklist">
+        <li>
+          <input type="checkbox" id="c12"><label for="c12">IAM uživatel → Security credentials → Create access key → zkopírovat <code>AccessKeyId</code> a <code>SecretAccessKey</code>
+            <span class="check-note">Secret key je zobrazen jen jednou — hned uložit do .env na serveru</span>
+          </label>
+        </li>
+      </ul>
+
+      <div class="subsection-title">Výstup ze sandboxu</div>
+      <ul class="checklist">
+        <li>
+          <input type="checkbox" id="c13"><label for="c13">SES → Account dashboard → Request production access
+            <span class="check-note">V sandboxu lze posílat jen na ověřené adresy. Pro produkci (stovky zákazníků) je production access nutný. Schválení AWS trvá typicky do 24 h.</span>
+          </label>
+        </li>
+      </ul>
+
+      <div class="callout callout-warn">
+        <span class="callout-icon">⚠</span>
+        <span>Hetzner blokuje port 25 (SMTP), ale <strong>AWS SES SDK používá HTTPS (port 443)</strong> — blokáda se netýká. Odesílání přes API pojede bez problémů.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Server příprava -->
+  <div class="section" id="s4">
+    <div class="section-header">
+      <div class="section-num">4</div>
+      <div class="section-title">Server — příprava prostředí</div>
+    </div>
+    <div class="section-body">
+      <ul class="checklist">
+        <li>
+          <input type="checkbox" id="c14"><label for="c14">Na serveru nainstalován Docker
+            <span class="check-note"><code>curl -fsSL https://get.docker.com | sh</code></span>
+          </label>
+        </li>
+        <li>
+          <input type="checkbox" id="c15"><label for="c15">Na serveru nainstalován Docker Compose (plugin)
+            <span class="check-note">Moderní Docker má Compose zabudovaný: <code>docker compose version</code></span>
+          </label>
+        </li>
+        <li>
+          <input type="checkbox" id="c16"><label for="c16">Vytvořena složka aplikace: <code>mkdir -p /opt/docker/apps/APPNAME</code></label>
+        </li>
+        <li>
+          <input type="checkbox" id="c17"><label for="c17">Firewall — otevřen port aplikace (nebo jen interní port + reverzní proxy)</label>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 5. GHCR login -->
+  <div class="section" id="s5">
+    <div class="section-header">
+      <div class="section-num">5</div>
+      <div class="section-title">Server — přihlášení do GHCR</div>
+    </div>
+    <div class="section-body">
+      <div class="callout callout-info">
+        <span class="callout-icon">ℹ</span>
+        <span>Potřebné pouze pokud je GitHub Container Registry package <strong>privátní</strong>. Veřejný package nevyžaduje přihlášení.</span>
+      </div>
+      <ul class="checklist">
+        <li>
+          <input type="checkbox" id="c18"><label for="c18">Vytvořen GitHub Personal Access Token (PAT)
+            <span class="check-note">GitHub → Settings → Developer settings → Personal access tokens → Classic → scope: <code>read:packages</code></span>
+          </label>
+        </li>
+        <li>
+          <input type="checkbox" id="c19"><label for="c19">Na serveru proveden login do GHCR (jednorázově)</label>
+        </li>
+      </ul>
+
+      <div class="code-label">Příkaz na serveru</div>
+      <div class="code-block"><pre>echo "GITHUB_PAT" | docker login ghcr.io -u GITHUB_USERNAME --password-stdin</pre></div>
+
+      <div class="callout callout-ok">
+        <span class="callout-icon">✓</span>
+        <span>Credentials se uloží do <code>~/.docker/config.json</code> — přihlášení přetrvá, opakovat není třeba.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. docker-compose + .env -->
+  <div class="section" id="s6">
+    <div class="section-header">
+      <div class="section-num">6</div>
+      <div class="section-title">Server — docker-compose.yml a .env</div>
+    </div>
+    <div class="section-body">
+      <div class="subsection-title">Kopírování souborů (Total Commander + SFTP)</div>
+      <ul class="checklist">
+        <li>
+          <input type="checkbox" id="c20"><label for="c20">V TC připojit SFTP panel: Net → FTP Connect → New connection → protokol SFTP</label>
+        </li>
+        <li>
+          <input type="checkbox" id="c21"><label for="c21">Zkopírovat <code>server-setup/docker-compose.yml</code> do <code>/opt/docker/apps/APPNAME/</code></label>
+        </li>
+        <li>
+          <input type="checkbox" id="c22"><label for="c22">Zkopírovat <code>server-setup/.env.template</code> jako <code>.env</code> do stejné složky
+            <span class="check-note">F5 v TC → při kopírování přejmenovat na .env</span>
+          </label>
+        </li>
+        <li>
+          <input type="checkbox" id="c23"><label for="c23">F4 na <code>.env</code> v TC → vyplnit všechny credentials a hodnoty
+            <span class="check-note">Edituje se přímo v editoru na Windows, uloží se zpět na server přes SFTP</span>
+          </label>
+        </li>
+      </ul>
+
+      <div class="subsection-title">Obsah .env — co vyplnit</div>
+      <div class="code-block"><pre>ConnectionStrings__DefaultConnection=Host=...;Database=...;Username=...;Password=...
+ApiKey=                        ← náhodný bezpečný řetězec (min. 32 znaků)
+Aws__Region=eu-central-1
+Aws__AccessKeyId=              ← z IAM uživatele
+Aws__SecretAccessKey=          ← z IAM uživatele
+Email__FromAddress=            ← ověřená adresa v SES
+Email__FromName=               ← zobrazované jméno odesílatele
+Email__ReplyToAddress=         ← kam odpovídat
+Email__UserPortalBaseUrl=      ← URL frontendu (https://...)
+Email__DryRun=false
+Email__OverrideRecipient=      ← prázdné = produkce, nebo testovací email
+ASPNETCORE_ENVIRONMENT=Production
+ASPNETCORE_URLS=http://+:8080</pre></div>
+
+      <div class="callout callout-danger">
+        <span class="callout-icon">⚠</span>
+        <span><strong>.env nikdy necommitovat do gitu.</strong> Do gitu patří jen <code>.env.template</code> s prázdnými hodnotami.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. Watchtower -->
+  <div class="section" id="s7">
+    <div class="section-header">
+      <div class="section-num">7</div>
+      <div class="section-title">Watchtower — automatický deploy</div>
+    </div>
+    <div class="section-body">
+      <div class="callout callout-info">
+        <span class="callout-icon">ℹ</span>
+        <span>Watchtower sleduje běžící kontejnery s příslušným labelem a automaticky je aktualizuje při detekci nového <code>:latest</code> image v registry.</span>
+      </div>
+      <ul class="checklist">
+        <li>
+          <input type="checkbox" id="c24"><label for="c24">Watchtower kontejner běží na serveru</label>
+        </li>
+      </ul>
+
+      <div class="code-label">Spuštění Watchtower (pokud ještě neběží)</div>
+      <div class="code-block"><pre>docker run -d \
+  --name watchtower \
+  --restart unless-stopped \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v ~/.docker/config.json:/config.json \
+  containrrr/watchtower \
+  --interval 300</pre></div>
+
+      <ul class="checklist">
+        <li>
+          <input type="checkbox" id="c25"><label for="c25">V <code>docker-compose.yml</code> aplikace je label <code>com.centurylinklabs.watchtower.enable=true</code>
+            <span class="check-note">Watchtower aktualizuje jen kontejnery s tímto labelem</span>
+          </label>
+        </li>
+        <li>
+          <input type="checkbox" id="c26"><label for="c26">Watchtower má přístup k <code>~/.docker/config.json</code> s GHCR credentials (viz krok 5)</label>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 8. První deploy -->
+  <div class="section" id="s8">
+    <div class="section-header">
+      <div class="section-num">8</div>
+      <div class="section-title">První deploy</div>
+    </div>
+    <div class="section-body">
+      <ul class="checklist">
+        <li>
+          <input type="checkbox" id="c27"><label for="c27">Všechny soubory commitnuty: <code>git add . &amp;&amp; git commit -m "Initial commit"</code></label>
+        </li>
+        <li>
+          <input type="checkbox" id="c28"><label for="c28">Push na main: <code>git push origin main</code>
+            <span class="check-note">Spustí GitHub Actions workflow → build → Docker push → GitHub Release</span>
+          </label>
+        </li>
+        <li>
+          <input type="checkbox" id="c29"><label for="c29">Na GitHubu zkontrolovat průběh: Actions → poslední run → všechny kroky zelené</label>
+        </li>
+        <li>
+          <input type="checkbox" id="c30"><label for="c30">Na serveru spustit kontejner poprvé (Watchtower ho pak udržuje aktuální):
+            <span class="check-note"><code>cd /opt/docker/apps/APPNAME &amp;&amp; docker compose up -d</code></span>
+          </label>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 9. Ověření -->
+  <div class="section" id="s9">
+    <div class="section-header">
+      <div class="section-num">9</div>
+      <div class="section-title">Ověření funkčnosti</div>
+    </div>
+    <div class="section-body">
+      <ul class="checklist">
+        <li>
+          <input type="checkbox" id="c31"><label for="c31">Health check vrací 200: <code>curl http://localhost:PORT/health</code></label>
+        </li>
+        <li>
+          <input type="checkbox" id="c32"><label for="c32">API key funguje: <code>curl -H "X-Api-Key: KLIC" http://localhost:PORT/api/admin/status</code></label>
+        </li>
+        <li>
+          <input type="checkbox" id="c33"><label for="c33">Email dry-run test: <code>POST /api/admin/emails/trigger</code> → zkontrolovat logy
+            <span class="check-note">Nejprve s <code>Email__DryRun=true</code> v .env, pak přepnout na false</span>
+          </label>
+        </li>
+        <li>
+          <input type="checkbox" id="c34"><label for="c34">Email redirect test: nastavit <code>Email__OverrideRecipient=tvuj@email.cz</code> → trigger → zkontrolovat doručení a vzhled</label>
+        </li>
+        <li>
+          <input type="checkbox" id="c35"><label for="c35">Produkční email: vypnout DryRun i OverrideRecipient, finální trigger nebo počkat na 28. v měsíci</label>
+        </li>
+        <li>
+          <input type="checkbox" id="c36"><label for="c36">Ověřit CalVer: <code>docker inspect CONTAINER | grep -i version</code> nebo GitHub Release</label>
+        </li>
+        <li>
+          <input type="checkbox" id="c37"><label for="c37">Watchtower test: push nový commit → po max. 5 minutách kontejner automaticky aktualizován</label>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function update() {
+    const all   = document.querySelectorAll('.checklist input[type="checkbox"]');
+    const done  = document.querySelectorAll('.checklist input[type="checkbox"]:checked');
+    const pct   = all.length ? Math.round(done.length / all.length * 100) : 0;
+    document.getElementById('doneCount').textContent  = done.length;
+    document.getElementById('totalCount').textContent = all.length;
+    document.getElementById('progressFill').style.width = pct + '%';
+  }
+
+  document.querySelectorAll('.checklist input[type="checkbox"]')
+    .forEach(cb => cb.addEventListener('change', update));
+
+  update();
+</script>
+</body>
+</html>

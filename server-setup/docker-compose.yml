@@ -1,0 +1,10 @@
+services:
+  sesu-api:
+    image: ghcr.io/plachow/canonsesu-api:latest
+    container_name: sesu-api
+    restart: unless-stopped
+    ports:
+      - "5080:8080"
+    env_file: .env
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"

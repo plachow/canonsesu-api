@@ -41,6 +41,7 @@ public static class UserEndpoints
                     d.RecordId,
                     d.TypStroje,
                     d.VyrobniCislo,
+                    d.TypKonfigurace,
                     d.TypPocitadla,
                     d.NazevPocitadla,
                     d.PosledniStavPocitadla,
