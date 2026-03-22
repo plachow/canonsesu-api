@@ -308,7 +308,7 @@ function renderCounterRow(d) {
           <label for="note-${d.recordId}">Poznámka</label>
           <textarea
             id="note-${d.recordId}"
-            placeholder="Volitelná poznámka (např. výměna stroje, servisní zásah…)"
+            placeholder="Volitelná poznámka"
             rows="2"
             ${disabled}
             oninput="onNoteInput(${d.recordId})"
