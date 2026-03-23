@@ -36,3 +36,4 @@ packages/
 # OS
 .DS_Store
 Thumbs.db
+/test-data/bulk-insert.json

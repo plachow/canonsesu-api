@@ -6,8 +6,24 @@ using CanonSeSu.Api.Middleware;
 using CanonSeSu.Api.Services;
 using Microsoft.AspNetCore.RateLimiting;
 using Quartz;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var logFilePath = builder.Configuration["Serilog:FilePath"] ?? "logs/log-.log";
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .MinimumLevel.Override("Microsoft.AspNetCore", Serilog.Events.LogEventLevel.Warning)
+    .MinimumLevel.Override("Microsoft.Hosting.Lifetime", Serilog.Events.LogEventLevel.Warning)
+    .WriteTo.Console()
+    .WriteTo.File(
+        path: logFilePath,
+        rollingInterval: RollingInterval.Month,
+        retainedFileCountLimit: 12,
+        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
+    .CreateLogger();
+
+builder.Host.UseSerilog();
 
 builder.Services.AddOpenApi();
 
