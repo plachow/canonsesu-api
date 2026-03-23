@@ -2,11 +2,13 @@ using Amazon;
 using Amazon.Runtime;
 using Amazon.SimpleEmailV2;
 using Amazon.SimpleEmailV2.Model;
+using CanonSeSu.Api.Data;
 using CanonSeSu.Api.Data.Models;
+using LinqToDB;
 
 namespace CanonSeSu.Api.Services;
 
-public class EmailService(IConfiguration configuration, ILogger<EmailService> logger)
+public class EmailService(IConfiguration configuration, ILogger<EmailService> logger, AppDb db)
 {
     private readonly EmailSettings _settings = configuration
         .GetSection("Email")
@@ -56,6 +58,7 @@ public class EmailService(IConfiguration configuration, ILogger<EmailService> lo
                     logger.LogInformation(
                         "[DRY RUN] Would send to {OriginalEmail} ({DeviceCount} devices, idcode={IdCode})",
                         originalEmail, devices.Count, idCode);
+                    await MarkEmailSentAsync(devices, cancellationToken);
                     sent++;
                     continue;
                 }
@@ -86,6 +89,7 @@ public class EmailService(IConfiguration configuration, ILogger<EmailService> lo
                 };
 
                 await client!.SendEmailAsync(request, cancellationToken);
+                await MarkEmailSentAsync(devices, cancellationToken);
                 sent++;
                 logger.LogInformation("Email sent → {Recipient} (original: {OriginalEmail}, {DeviceCount} devices)",
                     recipient, originalEmail, devices.Count);
@@ -99,6 +103,16 @@ public class EmailService(IConfiguration configuration, ILogger<EmailService> lo
 
         logger.LogInformation("Email batch complete. Sent: {Sent}, Failed: {Failed}{DryRun}",
             sent, failed, isDryRun ? " [DRY RUN]" : string.Empty);
+    }
+
+    private async Task MarkEmailSentAsync(List<ServiceDeviceCounter> devices, CancellationToken cancellationToken)
+    {
+        var ids = devices.Select(d => d.RecordId).ToList();
+        var now = DateTime.UtcNow;
+        await db.ServiceDeviceCounters
+            .Where(x => ids.Contains(x.RecordId))
+            .Set(x => x.EmailSentDate, now)
+            .UpdateAsync(cancellationToken);
     }
 
     private string BuildHtmlBody(

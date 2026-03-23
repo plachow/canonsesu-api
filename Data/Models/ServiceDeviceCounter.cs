@@ -50,4 +50,7 @@ public class ServiceDeviceCounter
 
     [Column("datumcasnahlaseni")]
     public DateTime? DatumCasNahlaseni { get; set; }
+
+    [Column("email_sent_date")]
+    public DateTime? EmailSentDate { get; set; }
 }
