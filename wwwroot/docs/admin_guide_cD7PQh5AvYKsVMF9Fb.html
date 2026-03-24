@@ -205,7 +205,6 @@
 <body>
 
 <header>
-  <div class="brand">CANON <span>CZ s.r.o.</span></div>
   <h1>Systém hlášení počítadel — Průvodce správou</h1>
 </header>
 
@@ -377,6 +376,27 @@ Total Colour = 2 × 122 (Color/Large) + 123 (Color/Small)</code></pre>
         <div class="endpoint-body">
           <p>Bez parametrů vrátí tiskárny pro <strong>aktuální (nejnovější) období</strong>. Pro zobrazení jiného období přidejte filtr:</p>
           <pre><code>GET /api/devices/current?startDate=2026-02-01&amp;endDate=2026-02-28</code></pre>
+          <p>Příklad odpovědi:</p>
+          <pre><code>[
+  {
+    "recordId": 695356,
+    "email": "zakaznik@firma.cz",
+    "idCode": "10b23592615542e9b9c875087b6a352d",
+    "typKonfigurace": "V700",
+    "typStroje": "IMAGEPRESS V700 SERIES",
+    "vyrobniCislo": "4VB05026",
+    "typPocitadla": "A",
+    "nazevPocitadla": "Color/Large (E)",
+    "datumPoslednihoHlaseni": "2026-02-01T00:00:00",
+    "posledniStavPocitadla": 31400,
+    "datumAktualnihoHlaseni": "2026-03-01T00:00:00",
+    "deadlineDate": "2026-03-28T00:00:00",
+    "aktualniStavPocitadla": 33250,
+    "poznamka": null,
+    "datumCasNahlaseni": "2026-03-15T10:22:04",
+    "emailSentDate": "2026-02-28T02:01:17"
+  }
+]</code></pre>
         </div>
       </div>
 
