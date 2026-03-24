@@ -65,7 +65,7 @@ public class EmailService(IConfiguration configuration, ILogger<EmailService> lo
 
                 var request = new SendEmailRequest
                 {
-                    FromEmailAddress = $"{_settings.FromName} <{_settings.FromAddress}>",
+                    FromEmailAddress = $"\"{_settings.FromName}\" <{_settings.FromAddress}>",
                     Destination = new Destination { ToAddresses = [recipient] },
                     ReplyToAddresses = [_settings.ReplyToAddress ?? _settings.FromAddress],
                     Content = new EmailContent
