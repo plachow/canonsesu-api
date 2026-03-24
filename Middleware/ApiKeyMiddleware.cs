@@ -5,7 +5,7 @@ public class ApiKeyMiddleware(RequestDelegate next, IConfiguration configuration
     private const string ApiKeyHeader = "X-Api-Key";
 
     // Paths accessible without an API key (end-user facing)
-    private static readonly string[] PublicPathPrefixes = ["/api/user", "/api/info", "/health"];
+    private static readonly string[] PublicPathPrefixes = ["/api/user", "/api/info", "/health", "/docs"];
 
     public async Task InvokeAsync(HttpContext context)
     {
