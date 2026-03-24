@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AspNetCoreRateLimit" Version="5.0.0" />
     <PackageReference Include="AWSSDK.SimpleEmailV2" Version="4.0.12.3" />
     <PackageReference Include="linq2db" Version="6.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.4" />

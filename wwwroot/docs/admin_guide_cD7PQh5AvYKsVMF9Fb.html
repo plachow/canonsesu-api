@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Systém hlášení počítadel — Průvodce správou</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      font-size: 15px;
+      line-height: 1.7;
+      color: #222;
+      background: #f5f5f5;
+    }
+
+    header {
+      background: #cc0000;
+      color: #fff;
+      padding: 28px 40px 24px;
+    }
+    header .brand { font-size: 22px; font-weight: 700; letter-spacing: 1px; }
+    header .brand span { font-size: 14px; font-weight: 400; opacity: .7; margin-left: 8px; }
+    header h1 { margin: 12px 0 0; font-size: 20px; font-weight: 400; opacity: .9; }
+
+    .layout {
+      display: flex;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 24px;
+      gap: 40px;
+      align-items: flex-start;
+    }
+
+    nav {
+      flex: 0 0 220px;
+      position: sticky;
+      top: 24px;
+      background: #fff;
+      border-radius: 6px;
+      padding: 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.1);
+      font-size: 13px;
+    }
+    nav .nav-title { font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: #888; font-size: 11px; margin-bottom: 12px; }
+    nav a { display: block; color: #444; text-decoration: none; padding: 4px 0; border-left: 2px solid transparent; padding-left: 8px; }
+    nav a:hover { color: #cc0000; border-left-color: #cc0000; }
+    nav .nav-sub { padding-left: 16px; }
+
+    main { flex: 1; min-width: 0; }
+
+    .card {
+      background: #fff;
+      border-radius: 6px;
+      padding: 32px 36px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.08);
+    }
+
+    h2 {
+      margin: 0 0 20px;
+      font-size: 19px;
+      color: #cc0000;
+      border-bottom: 1px solid #f0f0f0;
+      padding-bottom: 10px;
+    }
+    h3 { margin: 28px 0 10px; font-size: 16px; color: #333; }
+    h3:first-child { margin-top: 0; }
+
+    p { margin: 0 0 14px; }
+    p:last-child { margin-bottom: 0; }
+
+    code {
+      font-family: "Consolas", "Fira Code", monospace;
+      font-size: 13px;
+      background: #f3f3f3;
+      padding: 2px 6px;
+      border-radius: 3px;
+      color: #c7254e;
+    }
+
+    pre {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 18px 20px;
+      border-radius: 5px;
+      overflow-x: auto;
+      font-size: 13px;
+      line-height: 1.6;
+      margin: 12px 0 20px;
+    }
+    pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      margin: 12px 0 20px;
+    }
+    th {
+      background: #f5f5f5;
+      text-align: left;
+      padding: 9px 14px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+      color: #666;
+      border-bottom: 2px solid #e0e0e0;
+    }
+    td {
+      padding: 9px 14px;
+      border-bottom: 1px solid #f0f0f0;
+      vertical-align: top;
+    }
+    tr:last-child td { border-bottom: none; }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 3px;
+      font-size: 12px;
+      font-weight: 700;
+      font-family: monospace;
+    }
+    .badge-get { background: #e3f2fd; color: #0d6eaa; }
+    .badge-post { background: #e8f5e9; color: #2e7d32; }
+
+    .tag-public { background: #f3f3f3; color: #666; font-size: 11px; padding: 2px 7px; border-radius: 10px; font-weight: 600; }
+    .tag-admin { background: #fff3e0; color: #b45000; font-size: 11px; padding: 2px 7px; border-radius: 10px; font-weight: 600; }
+
+    .endpoint-block {
+      border: 1px solid #e8e8e8;
+      border-radius: 5px;
+      margin: 20px 0;
+      overflow: hidden;
+    }
+    .endpoint-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: #fafafa;
+      border-bottom: 1px solid #e8e8e8;
+    }
+    .endpoint-url {
+      font-family: monospace;
+      font-size: 14px;
+      color: #333;
+      font-weight: 600;
+    }
+    .endpoint-body { padding: 16px 20px; }
+    .endpoint-body p:last-child { margin-bottom: 0; }
+
+    .note {
+      background: #fff8e1;
+      border-left: 4px solid #f5a623;
+      padding: 12px 16px;
+      border-radius: 0 4px 4px 0;
+      font-size: 14px;
+      margin: 16px 0;
+    }
+
+    .steps { counter-reset: step; list-style: none; padding: 0; margin: 0 0 16px; }
+    .steps li {
+      counter-increment: step;
+      padding: 10px 0 10px 44px;
+      position: relative;
+      border-bottom: 1px solid #f5f5f5;
+    }
+    .steps li:last-child { border-bottom: none; }
+    .steps li::before {
+      content: counter(step);
+      position: absolute;
+      left: 0;
+      top: 10px;
+      width: 28px;
+      height: 28px;
+      background: #cc0000;
+      color: #fff;
+      border-radius: 50%;
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    footer {
+      text-align: center;
+      padding: 24px;
+      font-size: 12px;
+      color: #aaa;
+    }
+
+    @media (max-width: 740px) {
+      .layout { flex-direction: column; padding: 16px; }
+      nav { position: static; flex: none; width: 100%; }
+      header { padding: 20px; }
+      .card { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="brand">CANON <span>CZ s.r.o.</span></div>
+  <h1>Systém hlášení počítadel — Průvodce správou</h1>
+</header>
+
+<div class="layout">
+
+  <nav>
+    <div class="nav-title">Obsah</div>
+    <a href="#process">Jak systém funguje</a>
+    <a href="#rules">Pravidla pro zákazníky</a>
+    <a href="#bulk">Měsíční nahrání tiskáren</a>
+    <a href="#endpoints">Přehled všech funkcí</a>
+    <div class="nav-sub">
+      <a href="#ep-health">Dostupnost systému</a>
+      <a href="#ep-info">Aktuální období</a>
+      <a href="#ep-devices-current">Nahrané tiskárny</a>
+      <a href="#ep-status">Stav odevzdání</a>
+      <a href="#ep-trigger">Rozeslat emaily</a>
+      <a href="#ep-resend">Znovu poslat email</a>
+    </div>
+    <a href="#automation">Automatizace</a>
+    <a href="#schedule">Harmonogram</a>
+    <a href="#contact">Kontakt</a>
+  </nav>
+
+  <main>
+
+    <!-- Jak systém funguje -->
+    <div class="card" id="process">
+      <h2>Jak systém funguje</h2>
+      <p>Každý měsíc proběhnou automaticky tři kroky:</p>
+      <ol class="steps">
+        <li><strong>Vy nahrajete seznam aktivních tiskáren</strong> — jednou za měsíc, ideálně 1. dne</li>
+        <li><strong>Systém 28. v měsíci automaticky rozešle emaily</strong> — každý zákazník dostane odkaz na svůj formulář</li>
+        <li><strong>Zákazníci vyplní aktuální stav počítadel</strong> přes webový formulář a odešlou</li>
+      </ol>
+      <p>Váš jediný pravidelný úkon je nahrání tiskáren. Vše ostatní systém obstará sám.</p>
+    </div>
+
+    <!-- Pravidla -->
+    <div class="card" id="rules">
+      <h2>Pravidla pro zákazníky</h2>
+      <ul>
+        <li>Každý zákazník dostane <strong>jeden email s jedním odkazem</strong> — odkaz zobrazí všechna jeho zařízení najednou</li>
+        <li>Zákazník zadává stav počítadel <strong>k poslednímu dni příslušného měsíce</strong></li>
+        <li>Zadaná hodnota musí být <strong>vyšší nebo stejná</strong> jako v předchozím hlášení — systém nižší hodnotu odmítne</li>
+        <li>Pokud zákazník udělá chybu, může formulář otevřít znovu a hodnoty opravit — <strong>až do termínu odevzdání</strong></li>
+        <li>Po uplynutí termínu systém hlášení zablokuje — zákazník musí kontaktovat servisní oddělení</li>
+      </ul>
+
+      <h3>Výpočet počítadel Total BW / Total Colour</h3>
+      <p>Pokud tiskárna nemá přímo počítadla <strong>Total BW</strong> a <strong>Total Colour</strong>, zákazník použije dílčí:</p>
+      <pre><code>Total BW     = 2 × 112 (Black/Large) + 113 (Black/Small)
+Total Colour = 2 × 122 (Color/Large) + 123 (Color/Small)</code></pre>
+      <p>Hodnoty 112, 113, 122, 123 najde zákazník v menu tiskárny v sekci počítadel.</p>
+    </div>
+
+    <!-- Bulk insert -->
+    <div class="card" id="bulk">
+      <h2>Měsíční nahrání tiskáren</h2>
+      <p>Každý měsíc je nutné systému předat aktuální seznam aktivních tiskáren. Doporučujeme nastavit automaticky přes SQL Server Agent — viz kapitola <a href="#automation">Automatizace</a> níže.</p>
+
+      <div class="endpoint-block">
+        <div class="endpoint-head">
+          <span class="badge badge-post">POST</span>
+          <span class="endpoint-url">https://api.services-support.cz/api/devices/bulk</span>
+          <span class="tag-admin">vyžaduje API klíč</span>
+        </div>
+        <div class="endpoint-body">
+          <p>Odesíláte JSON seznam — jeden řádek = jedno počítadlo jednoho stroje:</p>
+          <pre><code>[
+  {
+    "email": "zakaznik@firma.cz",
+    "typKonfigurace": "V700",
+    "typStroje": "IMAGEPRESS V700 SERIES",
+    "vyrobniCislo": "4VB05026",
+    "typPocitadla": "122",
+    "nazevPocitadla": "Color/Large (E)",
+    "datumPoslednihoHlaseni": "2026-02-01",
+    "posledniStavPocitadla": 12345,
+    "datumAktualnihoHlaseni": "2026-03-01",
+    "deadlineDate": "2026-03-28"
+  }
+]</code></pre>
+
+          <table>
+            <thead><tr><th>Pole</th><th>Co sem patří</th></tr></thead>
+            <tbody>
+              <tr><td><code>email</code></td><td>Email zákazníka, kterému přijde výzva k hlášení</td></tr>
+              <tr><td><code>typKonfigurace</code></td><td>Interní kód konfigurace stroje</td></tr>
+              <tr><td><code>typStroje</code></td><td>Obchodní název stroje</td></tr>
+              <tr><td><code>vyrobniCislo</code></td><td>Sériové číslo stroje</td></tr>
+              <tr><td><code>typPocitadla</code></td><td>Kód počítadla</td></tr>
+              <tr><td><code>nazevPocitadla</code></td><td>Název počítadla</td></tr>
+              <tr><td><code>datumPoslednihoHlaseni</code></td><td>Datum předchozího hlášení</td></tr>
+              <tr><td><code>posledniStavPocitadla</code></td><td>Hodnota počítadla z minulého měsíce</td></tr>
+              <tr><td><code>datumAktualnihoHlaseni</code></td><td>Datum aktuálního období (zpravidla 1. den měsíce)</td></tr>
+              <tr><td><code>deadlineDate</code></td><td>Termín, do kdy musí zákazník hlášení odeslat</td></tr>
+            </tbody>
+          </table>
+
+          <div class="note">Pole <code>idcode</code> nevyplňujte — systém ho vygeneruje sám. Všechna zařízení se stejným emailem dostanou automaticky stejný kód (= jeden odkaz pro zákazníka).</div>
+
+          <p><strong>Odpověď systému</strong> vrátí vygenerované kódy:</p>
+          <pre><code>[
+  { "email": "zakaznik@firma.cz", "idCode": "a3f9c2d1b8e74f56..." }
+]</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- Přehled funkcí -->
+    <div class="card" id="endpoints">
+      <h2>Přehled všech funkcí</h2>
+      <p>Přehled dostupných adres API. Funkce označené <span class="tag-admin">vyžaduje API klíč</span> vyžadují hlavičku <code>X-Api-Key: &lt;váš klíč&gt;</code>.</p>
+
+      <table>
+        <thead>
+          <tr><th>Metoda</th><th>Adresa</th><th>Popis</th><th>Přístup</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><span class="badge badge-get">GET</span></td><td><code>/health</code></td><td>Ověření dostupnosti systému</td><td><span class="tag-public">veřejné</span></td></tr>
+          <tr><td><span class="badge badge-get">GET</span></td><td><code>/api/info</code></td><td>Aktuální období a termín odevzdání</td><td><span class="tag-public">veřejné</span></td></tr>
+          <tr><td><span class="badge badge-get">GET</span></td><td><code>/api/user/{idcode}</code></td><td>Zařízení zákazníka pro aktuální období</td><td><span class="tag-public">veřejné</span></td></tr>
+          <tr><td><span class="badge badge-post">POST</span></td><td><code>/api/user/{idcode}</code></td><td>Odeslání hlášení počítadel zákazníkem</td><td><span class="tag-public">veřejné</span></td></tr>
+          <tr><td><span class="badge badge-post">POST</span></td><td><code>/api/devices/bulk</code></td><td>Hromadné nahrání tiskáren</td><td><span class="tag-admin">vyžaduje API klíč</span></td></tr>
+          <tr><td><span class="badge badge-get">GET</span></td><td><code>/api/devices/current</code></td><td>Seznam nahraných tiskáren</td><td><span class="tag-admin">vyžaduje API klíč</span></td></tr>
+          <tr><td><span class="badge badge-get">GET</span></td><td><code>/api/admin/status</code></td><td>Přehled odevzdání za aktuální období</td><td><span class="tag-admin">vyžaduje API klíč</span></td></tr>
+          <tr><td><span class="badge badge-post">POST</span></td><td><code>/api/admin/emails/trigger</code></td><td>Ruční spuštění rozesílání emailů</td><td><span class="tag-admin">vyžaduje API klíč</span></td></tr>
+          <tr><td><span class="badge badge-post">POST</span></td><td><code>/api/admin/emails/resend/{email}</code></td><td>Znovuodeslání emailu jednomu příjemci</td><td><span class="tag-admin">vyžaduje API klíč</span></td></tr>
+        </tbody>
+      </table>
+
+      <h3 id="ep-health">Ověření dostupnosti systému</h3>
+      <div class="endpoint-block">
+        <div class="endpoint-head">
+          <span class="badge badge-get">GET</span>
+          <span class="endpoint-url">https://api.services-support.cz/health</span>
+          <span class="tag-public">veřejné</span>
+        </div>
+        <div class="endpoint-body">
+          <p>Vrátí <code>Healthy</code> při normálním provozu. Nevyžaduje API klíč. Vhodné pro monitoring nebo automatické kontroly dostupnosti.</p>
+        </div>
+      </div>
+
+      <h3 id="ep-info">Aktuální období a termín</h3>
+      <div class="endpoint-block">
+        <div class="endpoint-head">
+          <span class="badge badge-get">GET</span>
+          <span class="endpoint-url">https://api.services-support.cz/api/info</span>
+          <span class="tag-public">veřejné</span>
+        </div>
+        <div class="endpoint-body">
+          <p>Vrátí aktuální hlásicí období, termín odevzdání a příznak, zda termín již uplynul.</p>
+          <pre><code>{
+  "period": "2026-03-01",
+  "deadline": "2026-03-28",
+  "isPastDeadline": false
+}</code></pre>
+        </div>
+      </div>
+
+      <h3 id="ep-devices-current">Zobrazit nahrané tiskárny</h3>
+      <div class="endpoint-block">
+        <div class="endpoint-head">
+          <span class="badge badge-get">GET</span>
+          <span class="endpoint-url">https://api.services-support.cz/api/devices/current</span>
+          <span class="tag-admin">vyžaduje API klíč</span>
+        </div>
+        <div class="endpoint-body">
+          <p>Bez parametrů vrátí tiskárny pro <strong>aktuální (nejnovější) období</strong>. Pro zobrazení jiného období přidejte filtr:</p>
+          <pre><code>GET /api/devices/current?startDate=2026-02-01&amp;endDate=2026-02-28</code></pre>
+        </div>
+      </div>
+
+      <h3 id="ep-status">Zkontrolovat stav odevzdání</h3>
+      <div class="endpoint-block">
+        <div class="endpoint-head">
+          <span class="badge badge-get">GET</span>
+          <span class="endpoint-url">https://api.services-support.cz/api/admin/status</span>
+          <span class="tag-admin">vyžaduje API klíč</span>
+        </div>
+        <div class="endpoint-body">
+          <p>Zobrazí počty zařízení, příjemců a procento odevzdání pro aktuální období.</p>
+          <pre><code>{
+  "period": "2026-03-01",
+  "deadline": "2026-03-28",
+  "isPastDeadline": false,
+  "totalDevices": 250,
+  "submitted": 180,
+  "pending": 70,
+  "totalRecipients": 62,
+  "submittedRecipients": 45,
+  "pendingRecipients": 17,
+  "submissionRate": 72.0
+}</code></pre>
+        </div>
+      </div>
+
+      <h3 id="ep-trigger">Rozeslat emaily ručně</h3>
+      <div class="endpoint-block">
+        <div class="endpoint-head">
+          <span class="badge badge-post">POST</span>
+          <span class="endpoint-url">https://api.services-support.cz/api/admin/emails/trigger</span>
+          <span class="tag-admin">vyžaduje API klíč</span>
+        </div>
+        <div class="endpoint-body">
+          <p>Emaily se odesílají automaticky 28. v měsíci. Tato funkce spustí rozeslání kdykoli ručně — například pro ověření nebo po opravě dat.</p>
+          <p>Zákazníci, kterým email již přišel, jsou přeskočeni. Tělo požadavku je prázdné.</p>
+        </div>
+      </div>
+
+      <h3 id="ep-resend">Znovu poslat email jednomu zákazníkovi</h3>
+      <div class="endpoint-block">
+        <div class="endpoint-head">
+          <span class="badge badge-post">POST</span>
+          <span class="endpoint-url">https://api.services-support.cz/api/admin/emails/resend/{email}</span>
+          <span class="tag-admin">vyžaduje API klíč</span>
+        </div>
+        <div class="endpoint-body">
+          <p>Zákazník volá, že email nedostal? Nahraďte <code>{email}</code> jeho adresou:</p>
+          <pre><code>POST /api/admin/emails/resend/zakaznik@firma.cz</code></pre>
+          <p>Systém pošle email bez ohledu na to, zda ho zákazník již dříve dostal.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Automatizace -->
+    <div class="card" id="automation">
+      <h2>Automatizace přes SQL Server Agent + PowerShell</h2>
+      <p>Doporučujeme nastavit automatické měsíční nahrání přímo z vašeho SQL Serveru.</p>
+
+      <h3>Krok 1 — Připravte PowerShell skript</h3>
+      <p>Uložte jako <code>C:\Scripts\UploadPrinters.ps1</code>:</p>
+      <pre><code>$apiUrl    = "https://api.services-support.cz/api/devices/bulk"
+$apiKey    = "VAS_API_KLIC"
+$sqlServer = "VAS_SQL_SERVER"
+$sqlDb     = "VASE_DATABAZE"
+
+# Upravte dotaz dle vaší databázové struktury
+$query = @"
+SELECT
+    email                          AS email,
+    typ_konfigurace                AS typKonfigurace,
+    typ_stroje                     AS typStroje,
+    vyrobni_cislo                  AS vyrobniCislo,
+    typ_pocitadla                  AS typPocitadla,
+    nazev_pocitadla                AS nazevPocitadla,
+    datum_posledniho_hlaseni       AS datumPoslednihoHlaseni,
+    posledni_stav_pocitadla        AS posledniStavPocitadla,
+    DATEFROMPARTS(YEAR(GETDATE()), MONTH(GETDATE()), 1)  AS datumAktualnihoHlaseni,
+    DATEFROMPARTS(YEAR(GETDATE()), MONTH(GETDATE()), 28) AS deadlineDate
+FROM vw_aktivni_tiskarny_mesic
+"@
+
+$rows = Invoke-Sqlcmd -Query $query -ServerInstance $sqlServer -Database $sqlDb
+
+$json = $rows | ForEach-Object {
+    [ordered]@{
+        email                  = $_.email
+        typKonfigurace         = $_.typKonfigurace
+        typStroje              = $_.typStroje
+        vyrobniCislo           = $_.vyrobniCislo
+        typPocitadla           = $_.typPocitadla
+        nazevPocitadla         = $_.nazevPocitadla
+        datumPoslednihoHlaseni = $_.datumPoslednihoHlaseni.ToString("yyyy-MM-dd")
+        posledniStavPocitadla  = [int]$_.posledniStavPocitadla
+        datumAktualnihoHlaseni = $_.datumAktualnihoHlaseni.ToString("yyyy-MM-dd")
+        deadlineDate           = $_.deadlineDate.ToString("yyyy-MM-dd")
+    }
+} | ConvertTo-Json -AsArray
+
+$response = Invoke-RestMethod `
+    -Uri $apiUrl `
+    -Method POST `
+    -Body $json `
+    -ContentType "application/json" `
+    -Headers @{ "X-Api-Key" = $apiKey }
+
+$outputFile = "C:\Scripts\idcodes_$(Get-Date -Format 'yyyy-MM').csv"
+$response | Export-Csv $outputFile -NoTypeInformation -Encoding UTF8
+Write-Host "Nahráno $($response.Count) záznamů. Kódy uloženy: $outputFile"</code></pre>
+
+      <h3>Krok 2 — Nastavte SQL Server Agent Job</h3>
+      <ol>
+        <li>Otevřete <strong>SQL Server Management Studio</strong></li>
+        <li>Rozbalte <strong>SQL Server Agent</strong> → pravým tlačítkem na <strong>Jobs</strong> → <strong>New Job</strong></li>
+        <li>Name: <code>Mesicni upload tiskaren Canon API</code></li>
+        <li>Steps → New Step: Type = <code>PowerShell</code>, Command = <code>&amp; "C:\Scripts\UploadPrinters.ps1"</code></li>
+        <li>Schedules → New Schedule: Monthly, 1. den v měsíci, 06:00</li>
+        <li>Uložte job</li>
+      </ol>
+
+      <h3>Krok 3 — Ověřte první spuštění</h3>
+      <pre><code>&amp; "C:\Scripts\UploadPrinters.ps1"</code></pre>
+      <p>Výstupní CSV by měl obsahovat vygenerované kódy pro každý email.</p>
+    </div>
+
+    <!-- Harmonogram -->
+    <div class="card" id="schedule">
+      <h2>Harmonogram</h2>
+      <table>
+        <thead><tr><th>Krok</th><th>Kdy</th><th>Poznámka</th></tr></thead>
+        <tbody>
+          <tr><td>Nahrání tiskáren</td><td>1. den v měsíci, 06:00</td><td>SQL Agent Job (automaticky)</td></tr>
+          <tr><td>Odeslání emailů</td><td>28. den v měsíci, 02:00</td><td>Systém (automaticky)</td></tr>
+          <tr><td>Termín odevzdání</td><td>Dle <code>deadlineDate</code></td><td>Zákazník vyplní formulář</td></tr>
+          <tr><td>Kontrola odevzdání</td><td>Kdykoli</td><td><code>GET /api/admin/status</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Kontakt -->
+    <div class="card" id="contact">
+      <h2>Kontakt a podpora</h2>
+      <p><strong>Canon CZ s.r.o.</strong><br>
+      E-mail: <a href="mailto:pocitadla-cz@canon.cz">pocitadla-cz@canon.cz</a></p>
+    </div>
+
+  </main>
+</div>
+
+<footer>Canon CZ s.r.o. — Systém hlášení počítadel</footer>
+
+</body>
+</html>

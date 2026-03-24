@@ -28,6 +28,6 @@ public static class DevicesEndpoints
             return Results.Ok(devices);
         })
         .WithName("GetCurrentDevices")
-        .RequireRateLimiting("fixed");
+        ;
     }
 }

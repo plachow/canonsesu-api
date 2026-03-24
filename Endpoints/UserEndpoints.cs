@@ -67,7 +67,7 @@ public static class UserEndpoints
             });
         })
         .WithName("GetUserDevices")
-        .RequireRateLimiting("fixed");
+        ;
 
         // POST /api/user/{idcode} — submit counter readings for all devices
         app.MapPost("/api/user/{idcode}", async (AppDb db, string idcode, List<CounterSubmission> submissions) =>
@@ -113,7 +113,7 @@ public static class UserEndpoints
             return Results.Ok(new { message = "Počítadla byla úspěšně nahlášena. Děkujeme.", submittedAt = now });
         })
         .WithName("SubmitCounters")
-        .RequireRateLimiting("fixed");
+        ;
     }
 }
 

@@ -4,7 +4,6 @@ using CanonSeSu.Api.Endpoints;
 using CanonSeSu.Api.Jobs;
 using CanonSeSu.Api.Middleware;
 using CanonSeSu.Api.Services;
-using Microsoft.AspNetCore.RateLimiting;
 using Quartz;
 using Serilog;
 
@@ -31,13 +30,18 @@ builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
-    options.AddFixedWindowLimiter("fixed", o =>
-    {
-        o.Window = TimeSpan.FromMinutes(1);
-        o.PermitLimit = 60;
-        o.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-        o.QueueLimit = 0;
-    });
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: context.Request.Headers["CF-Connecting-IP"].FirstOrDefault()
+                          ?? context.Connection.RemoteIpAddress?.ToString()
+                          ?? "unknown",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                Window = TimeSpan.FromMinutes(1),
+                PermitLimit = 60,
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 0
+            }));
 });
 
 builder.Services.AddScoped<AppDb>(_ =>

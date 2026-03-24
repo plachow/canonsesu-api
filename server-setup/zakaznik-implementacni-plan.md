@@ -98,6 +98,38 @@ Všechny níže uvedené funkce vyžadují hlavičku `X-Api-Key: <váš API klí
 
 ---
 
+### Ověření dostupnosti systému
+
+Chcete zkontrolovat, zda systém běží?
+
+```
+GET https://api.services-support.cz/health
+```
+
+Vrátí `Healthy` při normálním provozu. Nevyžaduje API klíč. Vhodné pro monitoring.
+
+---
+
+### Aktuální období a termín
+
+Zjistíte aktuální hlásicí období a datum termínu bez přihlášení:
+
+```
+GET https://api.services-support.cz/api/info
+```
+
+Odpověď:
+
+```json
+{
+  "period": "2026-03-01",
+  "deadline": "2026-03-28",
+  "isPastDeadline": false
+}
+```
+
+---
+
 ### Zobrazit nahrané tiskárny
 
 Chcete zkontrolovat, co je aktuálně v systému nahráno?

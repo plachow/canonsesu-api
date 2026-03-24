@@ -44,7 +44,7 @@ public static class AdminEndpoints
             return Results.Ok(result);
         })
         .WithName("BulkInsertDevices")
-        .RequireRateLimiting("fixed");
+        ;
 
         app.MapPost("/api/admin/emails/trigger", async (ISchedulerFactory schedulerFactory) =>
         {
@@ -53,7 +53,7 @@ public static class AdminEndpoints
             return Results.Accepted(value: new { message = "Email job triggered. Check application logs for progress." });
         })
         .WithName("TriggerEmailJob")
-        .RequireRateLimiting("fixed");
+        ;
 
         // POST /api/admin/emails/resend/{email} — resend email to a single recipient from the current period
         app.MapPost("/api/admin/emails/resend/{email}", async (AppDb db, EmailService emailService, string email) =>
@@ -79,7 +79,7 @@ public static class AdminEndpoints
             return Results.Ok(new { message = $"Email resent to {email}.", deviceCount = devices.Count });
         })
         .WithName("ResendEmail")
-        .RequireRateLimiting("fixed");
+        ;
 
         // GET /api/admin/status — submission status for the current period
         app.MapGet("/api/admin/status", async (AppDb db) =>
@@ -123,7 +123,7 @@ public static class AdminEndpoints
             });
         })
         .WithName("GetSubmissionStatus")
-        .RequireRateLimiting("fixed");
+        ;
     }
 }
 
