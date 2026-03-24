@@ -65,7 +65,8 @@ public class EmailService(IConfiguration configuration, ILogger<EmailService> lo
 
                 var request = new SendEmailRequest
                 {
-                    FromEmailAddress = $"{_settings.FromName} <{_settings.FromAddress}>",
+                    // FromEmailAddress = $"{_settings.FromName} <{_settings.FromAddress}>",
+                    FromEmailAddress = $"{_settings.FromAddress}",
                     Destination = new Destination { ToAddresses = [recipient] },
                     ReplyToAddresses = [_settings.ReplyToAddress ?? _settings.FromAddress],
                     Content = new EmailContent
@@ -153,25 +154,8 @@ public class EmailService(IConfiguration configuration, ILogger<EmailService> lo
 
                       <!-- Header -->
                       <tr>
-                        <td style="background-color:#cc0000;padding:28px 32px;">
-                          <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-                            <tr>
-                              <td>
-                                <span style="font-size:22px;font-weight:bold;color:#ffffff;letter-spacing:1px;">CANON</span>
-                                <span style="font-size:13px;color:#ffcccc;margin-left:8px;">CZ s.r.o.</span>
-                              </td>
-                              <td align="right">
-                                <span style="font-size:12px;color:#ffcccc;">Servisní portál</span>
-                              </td>
-                            </tr>
-                          </table>
-                        </td>
-                      </tr>
-
-                      <!-- Title bar -->
-                      <tr>
-                        <td style="background-color:#b30000;padding:10px 32px;">
-                          <span style="font-size:13px;color:#ffaaaa;text-transform:uppercase;letter-spacing:0.5px;">Hlášení stavu počítadel – {periodStr}</span>
+                        <td style="background-color:#cc0000;padding:20px 32px;">
+                          <span style="font-size:15px;font-weight:bold;color:#ffffff;text-transform:uppercase;letter-spacing:0.5px;">Hlášení stavu počítadel – {periodStr}</span>
                         </td>
                       </tr>
 
@@ -242,11 +226,11 @@ public class EmailService(IConfiguration configuration, ILogger<EmailService> lo
                         <td style="background-color:#f4f4f4;padding:24px 32px;border-top:1px solid #e8e8e8;">
                           <p style="margin:0 0 8px;font-size:13px;color:#999999;line-height:1.5;">
                             Děkujeme za spolupráci.<br />
-                            <strong style="color:#666666;">Canon CZ s.r.o.</strong> — Servisní oddělení
+                            <strong style="color:#666666;">Canon CZ s.r.o.</strong>
                           </p>
                           <p style="margin:8px 0 0;font-size:11px;color:#bbbbbb;line-height:1.5;">
                             Tento e-mail byl odeslán automaticky. Neodpovídejte na tuto zprávu.
-                            Pokud máte dotazy, kontaktujte nás na <a href="mailto:{_settings.FromAddress}" style="color:#cc0000;text-decoration:none;">{_settings.FromAddress}</a>.
+                            Pokud máte dotazy, kontaktujte nás na <a href="mailto:{_settings.ReplyToAddress ?? _settings.FromAddress}" style="color:#cc0000;text-decoration:none;">{_settings.ReplyToAddress ?? _settings.FromAddress}</a>.
                           </p>
                           <p style="margin:8px 0 0;font-size:11px;color:#cccccc;">
                             Odkaz pro přístup k hlášení: <a href="{portalUrl}" style="color:#cc0000;word-break:break-all;">{portalUrl}</a>
