@@ -46,7 +46,7 @@ public class EmailService(IConfiguration configuration, ILogger<EmailService> lo
             var devices = group.ToList();
             var idCode = devices.First().IdCode!;
             var deadline = devices.First().DeadlineDate;
-            var recipient = overrideRecipient ?? originalEmail;
+            var recipient = !string.IsNullOrWhiteSpace(overrideRecipient) ? overrideRecipient : originalEmail;
 
             try
             {
@@ -65,7 +65,7 @@ public class EmailService(IConfiguration configuration, ILogger<EmailService> lo
 
                 var request = new SendEmailRequest
                 {
-                    FromEmailAddress = $"\"{_settings.FromName}\" <{_settings.FromAddress}>",
+                    FromEmailAddress = $"{_settings.FromName} <{_settings.FromAddress}>",
                     Destination = new Destination { ToAddresses = [recipient] },
                     ReplyToAddresses = [_settings.ReplyToAddress ?? _settings.FromAddress],
                     Content = new EmailContent
