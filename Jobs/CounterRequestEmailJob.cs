@@ -32,7 +32,7 @@ public class CounterRequestEmailJob(
             }
 
             var devices = await db.ServiceDeviceCounters
-                .Where(x => x.DatumAktualnihoHlaseni == maxDate && x.Email != null && x.IdCode != null)
+                .Where(x => x.DatumAktualnihoHlaseni == maxDate && x.Email != null && x.IdCode != null && x.EmailSentDate == null)
                 .ToListAsync(context.CancellationToken);
 
             if (devices.Count == 0)
