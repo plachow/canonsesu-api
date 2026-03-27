@@ -1,3 +1,4 @@
+using System.Text.Json;
 using CanonSeSu.Api.Data;
 using CanonSeSu.Api.Data.Models;
 using CanonSeSu.Api.Jobs;
@@ -13,8 +14,18 @@ public static class AdminEndpoints
 {
     public static void MapAdminEndpoints(this WebApplication app)
     {
-        app.MapPost("/api/devices/bulk", async (AppDb db, List<BulkInsertDeviceRequest> requests) =>
+        app.MapPost("/api/devices/bulk", async (AppDb db, HttpRequest httpRequest) =>
         {
+            using var reader = new StreamReader(httpRequest.Body);
+            var rawBody = await reader.ReadToEndAsync();
+
+            // Strip literal CR/LF characters that SQL Server FOR JSON sometimes injects
+            // inside string values when output exceeds ~2033 chars per row
+            var sanitized = rawBody.Replace("\r\n", "").Replace("\r", "").Replace("\n", "");
+
+            var requests = JsonSerializer.Deserialize<List<BulkInsertDeviceRequest>>(sanitized,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
             if (requests is not { Count: > 0 })
                 return Results.BadRequest("No devices provided.");
 
@@ -32,6 +43,8 @@ public static class AdminEndpoints
                 VyrobniCislo           = r.VyrobniCislo,
                 TypPocitadla           = r.TypPocitadla,
                 NazevPocitadla         = r.NazevPocitadla,
+                KonfiguraceId          = r.KonfiguraceId,
+                PocitadloId            = r.PocitadloId,
                 DatumPoslednihoHlaseni = r.DatumPoslednihoHlaseni,
                 PosledniStavPocitadla  = r.PosledniStavPocitadla,
                 DatumAktualnihoHlaseni = r.DatumAktualnihoHlaseni,
@@ -134,6 +147,8 @@ public record BulkInsertDeviceRequest(
     string? VyrobniCislo,
     string? TypPocitadla,
     string? NazevPocitadla,
+    string? KonfiguraceId,
+    string? PocitadloId,
     DateTime? DatumPoslednihoHlaseni,
     int? PosledniStavPocitadla,
     DateTime? DatumAktualnihoHlaseni,

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Nahrání tiskáren — Canon</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <style>
+    .upload-card {
+      max-width: 860px;
+      margin: 40px auto;
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 32px;
+    }
+    .upload-card h1 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .upload-card .subtitle {
+      color: var(--ink-muted);
+      font-size: .9rem;
+      margin-bottom: 28px;
+    }
+    .field { margin-bottom: 20px; }
+    .field label {
+      display: block;
+      font-size: .85rem;
+      font-weight: 600;
+      color: var(--ink-mid);
+      margin-bottom: 6px;
+    }
+    .field input[type="password"],
+    .field textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 10px 12px;
+      font-family: var(--font-ui);
+      font-size: .9rem;
+      color: var(--ink);
+      background: var(--white);
+      transition: border-color var(--transition);
+      resize: vertical;
+    }
+    .field input[type="password"]:focus,
+    .field textarea:focus {
+      outline: none;
+      border-color: var(--red);
+    }
+    .field textarea { font-family: 'Consolas', 'Courier New', monospace; font-size: .82rem; min-height: 280px; }
+    .btn-submit {
+      background: var(--red);
+      color: var(--white);
+      border: none;
+      border-radius: var(--radius);
+      padding: 11px 28px;
+      font-size: .95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background var(--transition);
+    }
+    .btn-submit:hover { background: var(--red-dark); }
+    .btn-submit:disabled { background: var(--ink-faint); cursor: not-allowed; }
+
+    #result { margin-top: 24px; }
+    .alert {
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      font-size: .9rem;
+      line-height: 1.5;
+    }
+    .alert-success { background: var(--success-bg); color: var(--success); border: 1px solid #A8D8BC; }
+    .alert-error   { background: #FFF5F5; color: #A80000; border: 1px solid var(--red-border); }
+
+    .result-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+      font-size: .85rem;
+    }
+    .result-table th {
+      text-align: left;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      padding: 8px 12px;
+      font-weight: 600;
+      color: var(--ink-mid);
+    }
+    .result-table td {
+      border: 1px solid var(--line);
+      padding: 8px 12px;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: .82rem;
+      word-break: break-all;
+    }
+    .result-table tr:hover td { background: var(--surface); }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="logo-mark">
+      <img src="/canon-logo.png" alt="Canon" />
+    </div>
+    <div class="header-text">
+      <div class="header-title">Nahrání tiskáren</div>
+      <div class="header-sub">Servisní portál — ruční nahrání dat pro aktuální období</div>
+    </div>
+  </div>
+</header>
+
+<main style="padding: 0 16px;">
+  <div class="upload-card">
+    <h1>Nahrání seznamu tiskáren</h1>
+    <p class="subtitle">Vložte JSON s daty tiskáren a zadejte API klíč. Data budou nahrána stejně jako při automatickém měsíčním procesu.</p>
+
+    <div class="field">
+      <label for="apiKey">API klíč</label>
+      <input type="password" id="apiKey" placeholder="Váš API klíč" autocomplete="off" />
+    </div>
+
+    <div class="field">
+      <label for="jsonData">JSON data</label>
+      <textarea id="jsonData" placeholder='[{"email":"...","typStroje":"...","vyrobniCislo":"...",...}]'></textarea>
+    </div>
+
+    <button class="btn-submit" id="submitBtn" onclick="upload()">Nahrát tiskárny</button>
+
+    <div id="result"></div>
+  </div>
+</main>
+
+<script>
+async function upload() {
+  const apiKey = document.getElementById('apiKey').value.trim();
+  const raw = document.getElementById('jsonData').value;
+  const resultEl = document.getElementById('result');
+  const btn = document.getElementById('submitBtn');
+
+  resultEl.innerHTML = '';
+
+  if (!apiKey) {
+    showError('Zadejte API klíč.');
+    return;
+  }
+  if (!raw.trim()) {
+    showError('Vložte JSON data.');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Nahrávám…';
+
+  try {
+    const resp = await fetch('/api/devices/bulk', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Api-Key': apiKey
+      },
+      body: raw
+    });
+
+    const text = await resp.text();
+
+    if (resp.status === 401 || resp.status === 403) {
+      showError('Neplatný API klíč.');
+      return;
+    }
+
+    if (!resp.ok) {
+      showError('Chyba při nahrávání: ' + (text || resp.statusText));
+      return;
+    }
+
+    const data = JSON.parse(text);
+    showSuccess(data);
+
+  } catch (e) {
+    showError('Chyba: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Nahrát tiskárny';
+  }
+}
+
+function showError(msg) {
+  document.getElementById('result').innerHTML =
+    `<div class="alert alert-error">${escHtml(msg)}</div>`;
+}
+
+function showSuccess(data) {
+  const count = data.length;
+  let rows = data.map(r =>
+    `<tr><td>${escHtml(r.email)}</td><td>${escHtml(r.idCode)}</td></tr>`
+  ).join('');
+
+  document.getElementById('result').innerHTML = `
+    <div class="alert alert-success">
+      Nahráno úspěšně. Celkem <strong>${count}</strong> ${recipientLabel(count)}.
+    </div>
+    <table class="result-table">
+      <thead><tr><th>E-mail</th><th>ID kód (odkaz)</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+function recipientLabel(n) {
+  if (n === 1) return 'příjemce';
+  if (n >= 2 && n <= 4) return 'příjemci';
+  return 'příjemců';
+}
+
+function escHtml(s) {
+  return String(s ?? '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+</script>
+
+</body>
+</html>

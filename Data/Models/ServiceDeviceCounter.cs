@@ -30,6 +30,12 @@ public class ServiceDeviceCounter
     [Column("nazevpocitadla")]
     public string? NazevPocitadla { get; set; }
 
+    [Column("konfigurace_id")]
+    public string? KonfiguraceId { get; set; }
+
+    [Column("pocitadlo_id")]
+    public string? PocitadloId { get; set; }
+
     [Column("datumposlednihohlaseni")]
     public DateTime? DatumPoslednihoHlaseni { get; set; }
 
