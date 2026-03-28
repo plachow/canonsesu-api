@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="/css/style.css" />
   <style>
     .upload-card {
-      max-width: 860px;
+      max-width: 920px;
       margin: 40px auto;
       background: var(--white);
       border: 1px solid var(--line);
@@ -27,6 +27,38 @@
       font-size: .9rem;
       margin-bottom: 28px;
     }
+
+    /* Steps */
+    .steps {
+      display: flex;
+      gap: 0;
+      margin-bottom: 32px;
+      border-bottom: 2px solid var(--line);
+    }
+    .step {
+      padding: 10px 20px 12px;
+      font-size: .85rem;
+      font-weight: 600;
+      color: var(--ink-faint);
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      cursor: default;
+      user-select: none;
+    }
+    .step.active { color: var(--red); border-bottom-color: var(--red); }
+    .step .num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: var(--line);
+      color: var(--ink-muted);
+      font-size: .75rem;
+      margin-right: 7px;
+    }
+    .step.active .num { background: var(--red); color: var(--white); }
+
     .field { margin-bottom: 20px; }
     .field label {
       display: block;
@@ -49,66 +81,73 @@
       resize: vertical;
     }
     .field input[type="password"]:focus,
-    .field textarea:focus {
-      outline: none;
-      border-color: var(--red);
-    }
+    .field textarea:focus { outline: none; border-color: var(--red); }
     .field textarea { font-family: 'Consolas', 'Courier New', monospace; font-size: .82rem; min-height: 280px; }
-    .btn-submit {
-      background: var(--red);
-      color: var(--white);
-      border: none;
-      border-radius: var(--radius);
-      padding: 11px 28px;
-      font-size: .95rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background var(--transition);
-    }
-    .btn-submit:hover { background: var(--red-dark); }
-    .btn-submit:disabled { background: var(--ink-faint); cursor: not-allowed; }
 
-    #result { margin-top: 24px; }
-    .alert {
-      border-radius: var(--radius);
-      padding: 14px 16px;
-      font-size: .9rem;
-      line-height: 1.5;
-    }
+    .btn { border: none; border-radius: var(--radius); padding: 11px 28px; font-size: .95rem; font-weight: 600; cursor: pointer; transition: background var(--transition); }
+    .btn-primary { background: var(--red); color: var(--white); }
+    .btn-primary:hover { background: var(--red-dark); }
+    .btn-primary:disabled { background: var(--ink-faint); cursor: not-allowed; }
+    .btn-secondary { background: var(--surface); color: var(--ink-mid); border: 1px solid var(--line); }
+    .btn-secondary:hover { background: var(--line); }
+
+    .btn-row { display: flex; gap: 12px; align-items: center; }
+
+    .alert { border-radius: var(--radius); padding: 14px 16px; font-size: .9rem; line-height: 1.5; margin-bottom: 16px; }
     .alert-success { background: var(--success-bg); color: var(--success); border: 1px solid #A8D8BC; }
     .alert-error   { background: #FFF5F5; color: #A80000; border: 1px solid var(--red-border); }
+    .alert-warn    { background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn-border); }
+    .alert-info    { background: var(--info-bg); color: var(--info); border: 1px solid var(--info-border); }
+
+    /* Preview */
+    .preview-summary {
+      display: flex;
+      gap: 24px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .stat-box {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 14px 20px;
+      min-width: 140px;
+    }
+    .stat-box .val { font-size: 1.8rem; font-weight: 700; color: var(--ink); line-height: 1; }
+    .stat-box .lbl { font-size: .78rem; color: var(--ink-muted); margin-top: 4px; }
 
     .result-table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 16px;
-      font-size: .85rem;
+      font-size: .83rem;
     }
     .result-table th {
       text-align: left;
       background: var(--surface);
       border: 1px solid var(--line);
-      padding: 8px 12px;
+      padding: 7px 10px;
       font-weight: 600;
       color: var(--ink-mid);
+      white-space: nowrap;
     }
     .result-table td {
       border: 1px solid var(--line);
-      padding: 8px 12px;
-      font-family: 'Consolas', 'Courier New', monospace;
-      font-size: .82rem;
-      word-break: break-all;
+      padding: 6px 10px;
+      vertical-align: top;
     }
+    .result-table td.mono { font-family: 'Consolas', 'Courier New', monospace; font-size: .8rem; }
     .result-table tr:hover td { background: var(--surface); }
+    .warn-cell { color: var(--warn); font-weight: 600; }
+
+    .table-wrap { overflow-x: auto; margin-top: 8px; }
+    #step1, #step2 { display: none; }
   </style>
 </head>
 <body>
 
 <header class="site-header">
   <div class="header-inner">
-    <div class="logo-mark">
-      <img src="/canon-logo.png" alt="Canon" />
-    </div>
+    <div class="logo-mark"><img src="/canon-logo.png" alt="Canon" /></div>
     <div class="header-text">
       <div class="header-title">Nahrání tiskáren</div>
       <div class="header-sub">Servisní portál — ruční nahrání dat pro aktuální období</div>
@@ -118,42 +157,175 @@
 
 <main style="padding: 0 16px;">
   <div class="upload-card">
-    <h1>Nahrání seznamu tiskáren</h1>
-    <p class="subtitle">Vložte JSON s daty tiskáren a zadejte API klíč. Data budou nahrána stejně jako při automatickém měsíčním procesu.</p>
 
-    <div class="field">
-      <label for="apiKey">API klíč</label>
-      <input type="password" id="apiKey" placeholder="Váš API klíč" autocomplete="off" />
+    <div class="steps">
+      <div class="step active" id="tab1"><span class="num">1</span>Vstupní data</div>
+      <div class="step" id="tab2"><span class="num">2</span>Náhled a potvrzení</div>
     </div>
 
-    <div class="field">
-      <label for="jsonData">JSON data</label>
-      <textarea id="jsonData" placeholder='[{"email":"...","typStroje":"...","vyrobniCislo":"...",...}]'></textarea>
+    <!-- STEP 1 -->
+    <div id="step1">
+      <h1>Nahrání seznamu tiskáren</h1>
+      <p class="subtitle">Vložte JSON s daty tiskáren a zadejte API klíč. Před importem uvidíte náhled parsovaných záznamů.</p>
+
+      <div class="field">
+        <label for="apiKey">API klíč</label>
+        <input type="password" id="apiKey" placeholder="Váš API klíč" autocomplete="off" />
+      </div>
+
+      <div class="field">
+        <label for="jsonData">JSON data</label>
+        <textarea id="jsonData" placeholder='[{"email":"...","typStroje":"...","vyrobniCislo":"...",...}]'></textarea>
+      </div>
+
+      <div id="step1Error"></div>
+
+      <button class="btn btn-primary" id="parseBtn" onclick="parseAndPreview()">Zkontrolovat data →</button>
     </div>
 
-    <button class="btn-submit" id="submitBtn" onclick="upload()">Nahrát tiskárny</button>
+    <!-- STEP 2 -->
+    <div id="step2">
+      <h1>Náhled dat před importem</h1>
+      <p class="subtitle">Zkontrolujte záznamy. Po potvrzení budou zapsány do databáze.</p>
 
-    <div id="result"></div>
+      <div id="previewWarnings"></div>
+
+      <div class="preview-summary" id="previewSummary"></div>
+
+      <div class="table-wrap">
+        <table class="result-table" id="previewTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>E-mail</th>
+              <th>Typ stroje</th>
+              <th>Výrobní číslo</th>
+              <th>Typ počítadla</th>
+              <th>Název počítadla</th>
+              <th>Posl. stav</th>
+              <th>Období</th>
+              <th>Deadline</th>
+            </tr>
+          </thead>
+          <tbody id="previewBody"></tbody>
+        </table>
+      </div>
+
+      <div id="step2Error" style="margin-top:16px;"></div>
+
+      <div class="btn-row" style="margin-top:24px;">
+        <button class="btn btn-primary" id="uploadBtn" onclick="upload()">Importovat do databáze</button>
+        <button class="btn btn-secondary" onclick="goBack()">← Zpět</button>
+      </div>
+
+      <div id="uploadResult" style="margin-top:24px;"></div>
+    </div>
+
   </div>
 </main>
 
 <script>
-async function upload() {
-  const apiKey = document.getElementById('apiKey').value.trim();
+let parsedData = null;
+
+// Show step 1 on load
+showStep(1);
+
+function showStep(n) {
+  document.getElementById('step1').style.display = n === 1 ? 'block' : 'none';
+  document.getElementById('step2').style.display = n === 2 ? 'block' : 'none';
+  document.getElementById('tab1').classList.toggle('active', n === 1);
+  document.getElementById('tab2').classList.toggle('active', n === 2);
+}
+
+function goBack() {
+  document.getElementById('uploadResult').innerHTML = '';
+  document.getElementById('step2Error').innerHTML = '';
+  showStep(1);
+}
+
+function sanitizeJson(raw) {
+  return raw.replace(/\r\n/g, '').replace(/\r/g, '').replace(/\n/g, '');
+}
+
+function parseAndPreview() {
   const raw = document.getElementById('jsonData').value;
-  const resultEl = document.getElementById('result');
-  const btn = document.getElementById('submitBtn');
+  const errEl = document.getElementById('step1Error');
+  errEl.innerHTML = '';
 
-  resultEl.innerHTML = '';
-
-  if (!apiKey) {
-    showError('Zadejte API klíč.');
+  if (!document.getElementById('apiKey').value.trim()) {
+    errEl.innerHTML = '<div class="alert alert-error">Zadejte API klíč.</div>';
     return;
   }
   if (!raw.trim()) {
-    showError('Vložte JSON data.');
+    errEl.innerHTML = '<div class="alert alert-error">Vložte JSON data.</div>';
     return;
   }
+
+  let data;
+  try {
+    data = JSON.parse(sanitizeJson(raw));
+  } catch (e) {
+    errEl.innerHTML = `<div class="alert alert-error">JSON nelze parsovat: ${escHtml(e.message)}</div>`;
+    return;
+  }
+
+  if (!Array.isArray(data) || data.length === 0) {
+    errEl.innerHTML = '<div class="alert alert-error">JSON musí být neprázdné pole záznamů.</div>';
+    return;
+  }
+
+  parsedData = data;
+  renderPreview(data);
+  showStep(2);
+}
+
+function renderPreview(data) {
+  // Summary stats
+  const emails = new Set(data.map(r => (r.email || '').trim().toLowerCase()));
+  const periods = new Set(data.map(r => r.datumAktualnihoHlaseni || ''));
+  document.getElementById('previewSummary').innerHTML = `
+    <div class="stat-box"><div class="val">${data.length}</div><div class="lbl">Záznamů (řádků)</div></div>
+    <div class="stat-box"><div class="val">${emails.size}</div><div class="lbl">Unikátních e-mailů</div></div>
+    <div class="stat-box"><div class="val">${periods.size === 1 ? [...periods][0] : periods.size}</div><div class="lbl">Období</div></div>`;
+
+  // Warnings
+  const warnings = [];
+  const emptyEmail = data.filter(r => !r.email || !r.email.trim());
+  if (emptyEmail.length) warnings.push(`${emptyEmail.length} záznamů nemá e-mail.`);
+
+  const spacedEmail = data.filter(r => r.email && r.email !== r.email.trim());
+  if (spacedEmail.length) warnings.push(`${spacedEmail.length} e-mailových adres obsahuje mezery (budou automaticky oříznuty).`);
+
+  if (periods.size > 1) warnings.push(`Data obsahují ${periods.size} různá období — zkontrolujte sloupec Období.`);
+
+  const warnEl = document.getElementById('previewWarnings');
+  warnEl.innerHTML = warnings.map(w => `<div class="alert alert-warn">${escHtml(w)}</div>`).join('');
+
+  // Table rows
+  const tbody = document.getElementById('previewBody');
+  tbody.innerHTML = data.map((r, i) => {
+    const emailWarn = r.email && r.email !== r.email.trim();
+    return `<tr>
+      <td class="mono">${i + 1}</td>
+      <td class="${emailWarn ? 'warn-cell' : ''}">${escHtml(r.email ?? '')}</td>
+      <td>${escHtml(r.typStroje ?? '')}</td>
+      <td class="mono">${escHtml(r.vyrobniCislo ?? '')}</td>
+      <td class="mono">${escHtml(r.typPocitadla ?? '')}</td>
+      <td>${escHtml(r.nazevPocitadla ?? '')}</td>
+      <td class="mono">${r.posledniStavPocitadla ?? ''}</td>
+      <td class="mono">${escHtml(r.datumAktualnihoHlaseni ?? '')}</td>
+      <td class="mono">${escHtml(r.deadlineDate ?? '')}</td>
+    </tr>`;
+  }).join('');
+}
+
+async function upload() {
+  const apiKey = document.getElementById('apiKey').value.trim();
+  const errEl = document.getElementById('step2Error');
+  const btn = document.getElementById('uploadBtn');
+  const resultEl = document.getElementById('uploadResult');
+  errEl.innerHTML = '';
+  resultEl.innerHTML = '';
 
   btn.disabled = true;
   btn.textContent = 'Nahrávám…';
@@ -161,55 +333,47 @@ async function upload() {
   try {
     const resp = await fetch('/api/devices/bulk', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Api-Key': apiKey
-      },
-      body: raw
+      headers: { 'Content-Type': 'application/json', 'X-Api-Key': apiKey },
+      body: JSON.stringify(parsedData)
     });
 
     const text = await resp.text();
 
     if (resp.status === 401 || resp.status === 403) {
-      showError('Neplatný API klíč.');
+      errEl.innerHTML = '<div class="alert alert-error">Neplatný API klíč.</div>';
       return;
     }
-
     if (!resp.ok) {
-      showError('Chyba při nahrávání: ' + (text || resp.statusText));
+      errEl.innerHTML = `<div class="alert alert-error">Chyba při nahrávání: ${escHtml(text || resp.statusText)}</div>`;
       return;
     }
 
-    const data = JSON.parse(text);
-    showSuccess(data);
+    const result = JSON.parse(text);
+    showUploadSuccess(result);
 
   } catch (e) {
-    showError('Chyba: ' + e.message);
+    errEl.innerHTML = `<div class="alert alert-error">Chyba: ${escHtml(e.message)}</div>`;
   } finally {
     btn.disabled = false;
-    btn.textContent = 'Nahrát tiskárny';
+    btn.textContent = 'Importovat do databáze';
   }
 }
 
-function showError(msg) {
-  document.getElementById('result').innerHTML =
-    `<div class="alert alert-error">${escHtml(msg)}</div>`;
-}
-
-function showSuccess(data) {
-  const count = data.length;
-  let rows = data.map(r =>
-    `<tr><td>${escHtml(r.email)}</td><td>${escHtml(r.idCode)}</td></tr>`
+function showUploadSuccess(data) {
+  const rows = data.map(r =>
+    `<tr><td>${escHtml(r.email)}</td><td class="mono">${escHtml(r.idCode)}</td></tr>`
   ).join('');
 
-  document.getElementById('result').innerHTML = `
-    <div class="alert alert-success">
-      Nahráno úspěšně. Celkem <strong>${count}</strong> ${recipientLabel(count)}.
-    </div>
-    <table class="result-table">
-      <thead><tr><th>E-mail</th><th>ID kód (odkaz)</th></tr></thead>
-      <tbody>${rows}</tbody>
-    </table>`;
+  document.getElementById('uploadResult').innerHTML = `
+    <div class="alert alert-success">Import proběhl úspěšně. Celkem <strong>${data.length}</strong> ${recipientLabel(data.length)}.</div>
+    <div class="table-wrap">
+      <table class="result-table">
+        <thead><tr><th>E-mail</th><th>ID kód</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+
+  document.getElementById('uploadBtn').style.display = 'none';
 }
 
 function recipientLabel(n) {
