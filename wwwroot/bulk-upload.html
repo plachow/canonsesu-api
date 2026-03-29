@@ -290,6 +290,9 @@ function renderPreview(data) {
 
   // Warnings
   const warnings = [];
+  const multiEmail = data.filter(r => r.email && /[,;]/.test(r.email));
+  if (multiEmail.length) warnings.push(`${multiEmail.length} záznamů obsahuje více e-mailových adres (odděleny čárkou nebo středníkem) — každá adresa dostane vlastní odkaz.`);
+
   const emptyEmail = data.filter(r => !r.email || !r.email.trim());
   if (emptyEmail.length) warnings.push(`${emptyEmail.length} záznamů nemá e-mail.`);
 
@@ -364,6 +367,12 @@ function showUploadSuccess(data) {
     `<tr><td>${escHtml(r.email)}</td><td class="mono">${escHtml(r.idCode)}</td></tr>`
   ).join('');
 
+  // Hide preview
+  document.getElementById('previewWarnings').style.display = 'none';
+  document.getElementById('previewSummary').style.display = 'none';
+  document.querySelector('.table-wrap').style.display = 'none';
+  document.getElementById('uploadBtn').style.display = 'none';
+
   document.getElementById('uploadResult').innerHTML = `
     <div class="alert alert-success">Import proběhl úspěšně. Celkem <strong>${data.length}</strong> ${recipientLabel(data.length)}.</div>
     <div class="table-wrap">
@@ -372,8 +381,6 @@ function showUploadSuccess(data) {
         <tbody>${rows}</tbody>
       </table>
     </div>`;
-
-  document.getElementById('uploadBtn').style.display = 'none';
 }
 
 function recipientLabel(n) {

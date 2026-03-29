@@ -29,12 +29,25 @@ public static class AdminEndpoints
             if (requests is not { Count: > 0 })
                 return Results.BadRequest("No devices provided.");
 
-            var codePerEmail = requests
+            // Expand records where email field contains multiple addresses (comma- or semicolon-separated)
+            var expanded = requests.SelectMany(r =>
+            {
+                var emails = (r.Email ?? "")
+                    .Split([',', ';'], StringSplitOptions.RemoveEmptyEntries)
+                    .Select(e => e.Trim())
+                    .Where(e => !string.IsNullOrEmpty(e))
+                    .ToList();
+                return emails.Count > 0
+                    ? emails.Select(email => r with { Email = email })
+                    : (IEnumerable<BulkInsertDeviceRequest>)[r];
+            }).ToList();
+
+            var codePerEmail = expanded
                 .Select(r => r.Email)
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToDictionary(email => email!, _ => Guid.NewGuid().ToString("N"), StringComparer.OrdinalIgnoreCase);
 
-            var rows = requests.Select(r => new ServiceDeviceCounter
+            var rows = expanded.Select(r => new ServiceDeviceCounter
             {
                 IdCode                 = codePerEmail[r.Email!],
                 Email                  = r.Email,
