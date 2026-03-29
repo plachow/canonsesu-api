@@ -330,6 +330,11 @@ async function upload() {
   errEl.innerHTML = '';
   resultEl.innerHTML = '';
 
+  if (!/^[\x20-\x7E]+$/.test(apiKey)) {
+    errEl.innerHTML = '<div class="alert alert-error">API klíč obsahuje neplatné znaky (diakritika nebo neviditelné znaky). Zkuste jej zkopírovat znovu nebo zadat ručně.</div>';
+    return;
+  }
+
   btn.disabled = true;
   btn.textContent = 'Nahrávám…';
 
