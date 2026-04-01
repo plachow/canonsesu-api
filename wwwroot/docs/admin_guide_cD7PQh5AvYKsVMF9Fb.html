@@ -292,7 +292,7 @@ Total Colour = 2 × 122 (Color/Large) + 123 (Color/Small)</code></pre>
           <table>
             <thead><tr><th>Pole</th><th>Co sem patří</th></tr></thead>
             <tbody>
-              <tr><td><code>email</code></td><td>Email zákazníka, kterému přijde výzva k hlášení</td></tr>
+              <tr><td><code>email</code></td><td>Email zákazníka, kterému přijde výzva k hlášení. Více adres oddělujte středníkem (<code>jan@firma.cz;petr@firma.cz</code>). Části bez znaku <code>@</code> (např. <code>;remote</code>, <code>;zalozni</code>) jsou automaticky ignorovány.</td></tr>
               <tr><td><code>typKonfigurace</code></td><td>Interní kód konfigurace stroje</td></tr>
               <tr><td><code>typStroje</code></td><td>Obchodní název stroje</td></tr>
               <tr><td><code>vyrobniCislo</code></td><td>Sériové číslo stroje</td></tr>
@@ -306,6 +306,7 @@ Total Colour = 2 × 122 (Color/Large) + 123 (Color/Small)</code></pre>
           </table>
 
           <div class="note">Pole <code>idcode</code> nevyplňujte — systém ho vygeneruje sám. Všechna zařízení se stejným emailem dostanou automaticky stejný kód (= jeden odkaz pro zákazníka).</div>
+          <div class="note"><strong>Více emailů na jeden stroj:</strong> Pokud má zákazník více adres, oddělte je středníkem přímo v poli <code>email</code> (např. <code>hlavni@firma.cz;zalozni@firma.cz</code>). Systém vytvoří samostatný záznam pro každou platnou adresu — každý zákazník dostane vlastní odkaz. Části bez znaku <code>@</code> (jako <code>;remote</code> nebo <code>;zalozni</code>) jsou automaticky odfiltrovány a ignorovány.</div>
 
           <p><strong>Odpověď systému</strong> vrátí vygenerované kódy:</p>
           <pre><code>[
