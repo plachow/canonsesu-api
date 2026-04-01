@@ -44,7 +44,7 @@ Každý měsíc je nutné systému předat aktuální seznam aktivních tiskáre
 **Endpoint pro nahrání:**
 
 ```
-POST https://api.services-support.cz/api/devices/bulk
+POST https://pocitadla.services-support.cz/api/devices/bulk
 X-Api-Key: <váš API klíč>
 ```
 
@@ -103,7 +103,7 @@ Všechny níže uvedené funkce vyžadují hlavičku `X-Api-Key: <váš API klí
 Chcete zkontrolovat, zda systém běží?
 
 ```
-GET https://api.services-support.cz/health
+GET https://pocitadla.services-support.cz/health
 ```
 
 Vrátí `Healthy` při normálním provozu. Nevyžaduje API klíč. Vhodné pro monitoring.
@@ -115,7 +115,7 @@ Vrátí `Healthy` při normálním provozu. Nevyžaduje API klíč. Vhodné pro 
 Zjistíte aktuální hlásicí období a datum termínu bez přihlášení:
 
 ```
-GET https://api.services-support.cz/api/info
+GET https://pocitadla.services-support.cz/api/info
 ```
 
 Odpověď:
@@ -135,14 +135,14 @@ Odpověď:
 Chcete zkontrolovat, co je aktuálně v systému nahráno?
 
 ```
-GET https://api.services-support.cz/api/devices/current
+GET https://pocitadla.services-support.cz/api/devices/current
 X-Api-Key: <váš API klíč>
 ```
 
 Bez dalších parametrů vrátí tiskárny pro **aktuální (nejnovější) období**. Potřebujete-li zobrazit jiné období, přidejte filtr:
 
 ```
-GET https://api.services-support.cz/api/devices/current?startDate=2026-02-01&endDate=2026-02-28
+GET https://pocitadla.services-support.cz/api/devices/current?startDate=2026-02-01&endDate=2026-02-28
 ```
 
 ---
@@ -152,7 +152,7 @@ GET https://api.services-support.cz/api/devices/current?startDate=2026-02-01&end
 Kolik zákazníků už hlášení odeslalo a kolik ještě ne?
 
 ```
-GET https://api.services-support.cz/api/admin/status
+GET https://pocitadla.services-support.cz/api/admin/status
 X-Api-Key: <váš API klíč>
 ```
 
@@ -180,7 +180,7 @@ Odpověď:
 Emaily se odesílají automaticky 28. v měsíci. Pokud potřebujete rozeslání spustit dříve (například pro ověření nebo po opravě dat), použijte:
 
 ```
-POST https://api.services-support.cz/api/admin/emails/trigger
+POST https://pocitadla.services-support.cz/api/admin/emails/trigger
 X-Api-Key: <váš API klíč>
 ```
 
@@ -193,7 +193,7 @@ Systém odešle emaily všem, kteří ještě žádný nedostali. Zákazníci, k
 Zákazník volá, že email nedostal? Pošlete mu ho znovu:
 
 ```
-POST https://api.services-support.cz/api/admin/emails/resend/zakaznik@firma.cz
+POST https://pocitadla.services-support.cz/api/admin/emails/resend/zakaznik@firma.cz
 X-Api-Key: <váš API klíč>
 ```
 
@@ -210,7 +210,7 @@ Doporučujeme nastavit automatické měsíční nahrání přímo z vašeho SQL 
 Uložte jako `C:\Scripts\UploadPrinters.ps1`:
 
 ```powershell
-$apiUrl    = "https://api.services-support.cz/api/devices/bulk"
+$apiUrl    = "https://pocitadla.services-support.cz/api/devices/bulk"
 $apiKey    = "VAS_API_KLIC"
 $sqlServer = "VAS_SQL_SERVER"
 $sqlDb     = "VASE_DATABAZE"

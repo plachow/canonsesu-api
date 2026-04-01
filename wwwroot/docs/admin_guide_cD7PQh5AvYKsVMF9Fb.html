@@ -269,7 +269,7 @@ Total Colour = 2 × 122 (Color/Large) + 123 (Color/Small)</code></pre>
       <div class="endpoint-block">
         <div class="endpoint-head">
           <span class="badge badge-post">POST</span>
-          <span class="endpoint-url">https://api.services-support.cz/api/devices/bulk</span>
+          <span class="endpoint-url">https://pocitadla.services-support.cz/api/devices/bulk</span>
           <span class="tag-admin">vyžaduje API klíč</span>
         </div>
         <div class="endpoint-body">
@@ -342,7 +342,7 @@ Total Colour = 2 × 122 (Color/Large) + 123 (Color/Small)</code></pre>
       <div class="endpoint-block">
         <div class="endpoint-head">
           <span class="badge badge-get">GET</span>
-          <span class="endpoint-url">https://api.services-support.cz/health</span>
+          <span class="endpoint-url">https://pocitadla.services-support.cz/health</span>
           <span class="tag-public">veřejné</span>
         </div>
         <div class="endpoint-body">
@@ -354,7 +354,7 @@ Total Colour = 2 × 122 (Color/Large) + 123 (Color/Small)</code></pre>
       <div class="endpoint-block">
         <div class="endpoint-head">
           <span class="badge badge-get">GET</span>
-          <span class="endpoint-url">https://api.services-support.cz/api/info</span>
+          <span class="endpoint-url">https://pocitadla.services-support.cz/api/info</span>
           <span class="tag-public">veřejné</span>
         </div>
         <div class="endpoint-body">
@@ -371,7 +371,7 @@ Total Colour = 2 × 122 (Color/Large) + 123 (Color/Small)</code></pre>
       <div class="endpoint-block">
         <div class="endpoint-head">
           <span class="badge badge-get">GET</span>
-          <span class="endpoint-url">https://api.services-support.cz/api/devices/current</span>
+          <span class="endpoint-url">https://pocitadla.services-support.cz/api/devices/current</span>
           <span class="tag-admin">vyžaduje API klíč</span>
         </div>
         <div class="endpoint-body">
@@ -405,7 +405,7 @@ Total Colour = 2 × 122 (Color/Large) + 123 (Color/Small)</code></pre>
       <div class="endpoint-block">
         <div class="endpoint-head">
           <span class="badge badge-get">GET</span>
-          <span class="endpoint-url">https://api.services-support.cz/api/admin/status</span>
+          <span class="endpoint-url">https://pocitadla.services-support.cz/api/admin/status</span>
           <span class="tag-admin">vyžaduje API klíč</span>
         </div>
         <div class="endpoint-body">
@@ -429,7 +429,7 @@ Total Colour = 2 × 122 (Color/Large) + 123 (Color/Small)</code></pre>
       <div class="endpoint-block">
         <div class="endpoint-head">
           <span class="badge badge-post">POST</span>
-          <span class="endpoint-url">https://api.services-support.cz/api/admin/emails/trigger</span>
+          <span class="endpoint-url">https://pocitadla.services-support.cz/api/admin/emails/trigger</span>
           <span class="tag-admin">vyžaduje API klíč</span>
         </div>
         <div class="endpoint-body">
@@ -442,7 +442,7 @@ Total Colour = 2 × 122 (Color/Large) + 123 (Color/Small)</code></pre>
       <div class="endpoint-block">
         <div class="endpoint-head">
           <span class="badge badge-post">POST</span>
-          <span class="endpoint-url">https://api.services-support.cz/api/admin/emails/resend/{email}</span>
+          <span class="endpoint-url">https://pocitadla.services-support.cz/api/admin/emails/resend/{email}</span>
           <span class="tag-admin">vyžaduje API klíč</span>
         </div>
         <div class="endpoint-body">
@@ -460,7 +460,7 @@ Total Colour = 2 × 122 (Color/Large) + 123 (Color/Small)</code></pre>
 
       <h3>Krok 1 — Připravte PowerShell skript</h3>
       <p>Uložte jako <code>C:\Scripts\UploadPrinters.ps1</code>:</p>
-      <pre><code>$apiUrl    = "https://api.services-support.cz/api/devices/bulk"
+      <pre><code>$apiUrl    = "https://pocitadla.services-support.cz/api/devices/bulk"
 $apiKey    = "VAS_API_KLIC"
 $sqlServer = "VAS_SQL_SERVER"
 $sqlDb     = "VASE_DATABAZE"
