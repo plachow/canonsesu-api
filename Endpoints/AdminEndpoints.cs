@@ -35,7 +35,7 @@ public static class AdminEndpoints
                 var emails = (r.Email ?? "")
                     .Split([',', ';'], StringSplitOptions.RemoveEmptyEntries)
                     .Select(e => e.Trim())
-                    .Where(e => !string.IsNullOrEmpty(e))
+                    .Where(e => e.Contains('@'))
                     .ToList();
                 return emails.Count > 0
                     ? emails.Select(email => r with { Email = email })
