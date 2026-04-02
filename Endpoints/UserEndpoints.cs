@@ -1,5 +1,4 @@
 using CanonSeSu.Api.Data;
-using CanonSeSu.Api.Data.Models;
 using LinqToDB;
 using LinqToDB.Async;
 

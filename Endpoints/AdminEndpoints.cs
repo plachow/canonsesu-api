@@ -7,6 +7,8 @@ using LinqToDB;
 using LinqToDB.Async;
 using LinqToDB.Data;
 using Quartz;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Mvc;
 
 namespace CanonSeSu.Api.Endpoints;
 
@@ -70,6 +72,7 @@ public static class AdminEndpoints
             return Results.Ok(result);
         })
         .WithName("BulkInsertDevices")
+        .WithMetadata(new RequestSizeLimitAttribute(30_000_000))
         ;
 
         app.MapPost("/api/admin/emails/trigger", async (ISchedulerFactory schedulerFactory) =>
